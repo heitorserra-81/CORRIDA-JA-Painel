@@ -392,9 +392,16 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
     </div>
   </div>
 
-</div>
+  <!-- BOTTOM NAV FIXO -->
+  <div class="bottom-nav">
+    <button class="nav-item ativo" id="nav-dashboard" onclick="abrirAba('dashboard')"><div class="nav-icon">📊</div><div class="nav-label">Dashboard</div></button>
+    <button class="nav-item" id="nav-corridas" onclick="abrirAba('corridas')"><div class="nav-icon">🚗</div><div class="nav-label">Corridas</div></button>
+    <button class="nav-item" id="nav-motoristas" onclick="abrirAba('motoristas')"><div class="nav-icon">🏍️</div><div class="nav-label">Motoristas</div></button>
+    <button class="nav-item" id="nav-receita" onclick="abrirAba('receita')"><div class="nav-icon">💰</div><div class="nav-label">Receita</div></button>
+    <button class="nav-item" id="nav-config" onclick="abrirAba('config')"><div class="nav-icon">⚙️</div><div class="nav-label">Config</div></button>
+  </div>
 
-<!-- MODAL CRÉDITO -->
+</div>
 <div id="modal-credito">
   <div class="credito-sheet">
     <div class="credito-titulo" id="credito-titulo">Adicionar créditos</div>
@@ -478,11 +485,18 @@ function mostrarTela(id){document.querySelectorAll('.screen').forEach(s=>s.class
 
 function abrirAba(id){
   document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('ativo'));
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('ativo'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));
   document.getElementById('aba-'+id).classList.add('ativa');
-  const tabs=document.querySelectorAll('.tabs .tab');
+
+  // Atualizar tab no topo
   const map={dashboard:0,corridas:1,motoristas:2,passageiros:3,receita:4,config:5};
-  if(map[id]!==undefined) tabs[map[id]]&&tabs[map[id]].classList.add('ativo');
+  const tabs=document.querySelectorAll('.tabs .tab');
+  if(map[id]!==undefined && tabs[map[id]]) tabs[map[id]].classList.add('ativo');
+
+  // Atualizar bottom nav
+  const navMap={dashboard:'nav-dashboard',corridas:'nav-corridas',motoristas:'nav-motoristas',receita:'nav-receita',config:'nav-config'};
+  if(navMap[id]) document.getElementById(navMap[id])&&document.getElementById(navMap[id]).classList.add('ativo');
 
   switch(id){
     case 'dashboard': carregarDashboard();iniciarLive();break;
@@ -615,9 +629,11 @@ async function carregarMotoristas(){
 async function bloquearMotorista(id,bloquear){
   mostrarLoading(true);
   try{
-    await db.collection('cj_motoristas').doc(id).update({bloqueado:bloquear,online:bloquear?false:undefined});
+    const dados={bloqueado:bloquear};
+    if(bloquear) dados.online=false;
+    await db.collection('cj_motoristas').doc(id).update(dados);
     mostrarLoading(false);
-    toast(bloquear?'Motorista bloqueado':'Motorista desbloqueado');
+    toast(bloquear?'Motorista bloqueado!':'Motorista desbloqueado!');
     carregarMotoristas();
   }catch(e){mostrarLoading(false);toast('Erro: '+e.message);}
 }
