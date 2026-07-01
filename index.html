@@ -65,7 +65,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .btn-entrar:active{opacity:0.85;}
 
 /* HEADER */
-.painel-header{padding:20px 18px 18px;padding-top:calc(var(--sat) + 26px);background:linear-gradient(180deg,rgba(30,27,75,0.97) 0%,rgba(15,15,42,0.75) 70%,transparent 100%);position:relative;}
+.painel-header{padding:20px 18px 18px;padding-top:calc(var(--sat) + 26px);background:linear-gradient(180deg,rgba(30,27,75,0.97) 0%,rgba(15,15,42,0.75) 70%,transparent 100%);position:relative;flex-shrink:0;}
 .painel-header-top{display:flex;align-items:center;gap:10px;position:relative;min-height:52px;}
 .painel-admin-info{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .painel-admin-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:2px solid var(--roxo-claro);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 4px 14px rgba(139,92,246,0.35);}
@@ -78,13 +78,13 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .btn-menu-ham{background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:13px;color:var(--roxo-claro);font-size:21px;cursor:pointer;padding:9px 13px;flex-shrink:0;position:relative;z-index:1;}
 
 /* TABS */
-.tabs{display:flex;gap:8px;background:var(--bg);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50;padding:6px 16px 14px;isolation:isolate;touch-action:pan-x;}
+.tabs{display:flex;gap:8px;background:var(--bg);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:5;padding:6px 16px 14px;isolation:isolate;touch-action:pan-x;flex-shrink:0;}
 .tabs::-webkit-scrollbar{display:none;}
 .tab{flex-shrink:0;padding:9px 16px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border-radius:20px;transition:all 0.2s;}
 .tab.ativo{color:#fff;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border-color:var(--roxo-claro);box-shadow:0 4px 14px rgba(139,92,246,0.35);}
 
 /* CONTEÚDO DAS ABAS */
-.aba{display:none;padding:8px 20px 40px;flex-direction:column;gap:14px;position:relative;z-index:1;isolation:isolate;contain:layout;}
+.aba{display:none;padding:8px 20px 40px;flex-direction:column;gap:14px;position:relative;z-index:1;isolation:isolate;contain:layout;flex-shrink:0;}
 .aba.ativa{display:flex;}
 
 /* CARDS RESUMO */
@@ -215,7 +215,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .pwa-btns{display:flex;gap:7px;flex-shrink:0;}
 .btn-inst{padding:9px 14px;border-radius:11px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-x{width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;}
-#ios-guide{position:fixed;bottom:-400px;left:12px;right:12px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;z-index:9500;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:bottom 0.4s ease;}
+#ios-guide{position:fixed;bottom:-400px;left:12px;right:12px;max-height:min(320px,60vh);overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;z-index:9500;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:bottom 0.4s ease;}
 #ios-guide.show{bottom:16px;}
 .ios-tit{font-size:15px;font-weight:800;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .ios-steps{display:flex;flex-direction:column;gap:11px;margin-bottom:14px;}
@@ -238,6 +238,9 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .card-widget-sub{font-size:10px;color:var(--muted);margin-top:2px;}
 .card-widget.tam-3 .card-widget-val{font-size:15px;}
 .config-card-item-dash{display:flex;align-items:center;gap:11px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:11px 13px;}
+.perfil-preco-btn{flex-shrink:0;padding:11px 14px;border-radius:14px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;line-height:1.5;}
+.perfil-preco-btn span{display:block;font-size:9px;color:var(--muted);font-weight:500;}
+.perfil-preco-btn:active{background:var(--roxo);border-color:var(--roxo-claro);}
 </style>
 </head>
 <body>
@@ -247,7 +250,11 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 <div class="screen ativo" id="tela-splash">
   <div class="splash-logo"><img id="logo-splash" src="" alt="Corrida Já Admin"/></div>
   <div class="splash-title">Corrida Já<br/><span>Painel Admin</span></div>
-  <div class="splash-sub">Gestão completa do sistema</div>
+  <div class="splash-sub" style="margin-bottom:2px;">Gestão completa do sistema</div>
+  <div class="menu-ret" style="margin-top:2px;">
+    <div class="menu-ret-luz"></div>
+    <div class="menu-ret-inner"><div class="menu-ret-nome">Desenvolvido por Heitor Serra Neto</div></div>
+  </div>
   <div class="splash-loader"></div>
 </div>
 
@@ -295,21 +302,16 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 
   <!-- DASHBOARD -->
   <div class="aba ativa" id="aba-dashboard"><div style="height:6px;flex-shrink:0;"></div>
-    <div class="resumo-grid">
-      <div class="resumo-card"><div class="resumo-card-icon">🚗</div><div class="resumo-card-val ciano" id="dash-corridas-hoje">0</div><div class="resumo-card-label">Corridas hoje</div></div>
-      <div class="resumo-card"><div class="resumo-card-icon">💰</div><div class="resumo-card-val amarelo" id="dash-receita-hoje">R$ 0</div><div class="resumo-card-label">Créditos vendidos hoje</div></div>
-      <div class="resumo-card"><div class="resumo-card-icon">🏍️</div><div class="resumo-card-val verde" id="dash-motoristas-online">0</div><div class="resumo-card-label">Motoristas online</div></div>
-      <div class="resumo-card"><div class="resumo-card-icon">⏳</div><div class="resumo-card-val amarelo" id="dash-aguardando">0</div><div class="resumo-card-label">Aguardando</div></div>
-    </div>
     <div id="cards-extras-container"></div>
 
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="live-header">
-        <div class="live-titulo">Corridas em tempo real</div>
-        <div class="live-dot">Ao vivo</div>
+    <button class="card-clicavel" onclick="abrirCorridasLiveModal()" style="width:100%;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(56,189,248,0.08));border:1px solid var(--roxo-claro);border-radius:16px;padding:15px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;">
+      <div style="font-size:24px;">🔴</div>
+      <div style="flex:1;text-align:left;">
+        <div style="font-size:14px;font-weight:800;color:#fff;">Corridas em tempo real</div>
+        <div style="font-size:11px;color:var(--muted);">Toque para acompanhar ao vivo</div>
       </div>
-      <div id="lista-live"><div class="vazio">Nenhuma corrida ativa</div></div>
-    </div>
+      <div style="font-size:18px;color:var(--roxo-claro);">→</div>
+    </button>
   </div>
 
   <!-- CORRIDAS -->
@@ -336,7 +338,15 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 
   <!-- PREÇOS (mapa de raios) -->
   <div class="aba" id="aba-precos"><div style="height:6px;flex-shrink:0;"></div>
-    <div class="secao-label">Configuração de preços por raio</div>
+    <div class="secao-label">Perfis prontos (aplicar tabela)</div>
+    <div style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;touch-action:pan-x;">
+      <button class="perfil-preco-btn" onclick="aplicarPerfilPreco('inicial')">🌱 Inicial<br><span>Atrai motoristas</span></button>
+      <button class="perfil-preco-btn" onclick="aplicarPerfilPreco('baixo')">💚 Baixo</button>
+      <button class="perfil-preco-btn" onclick="aplicarPerfilPreco('medio')">💛 Médio</button>
+      <button class="perfil-preco-btn" onclick="aplicarPerfilPreco('altomedio')">🟠 Médio-alto</button>
+      <button class="perfil-preco-btn" onclick="aplicarPerfilPreco('alto')">🔴 Alto</button>
+    </div>
+    <div class="secao-label" style="margin-top:8px;">Configuração de preços por raio</div>
     <div class="mapa-raio-wrap">
       <div class="mapa-raio-container">
         <div class="mapa-raio-legenda" id="mapa-raio-legenda">Ajuste o raio de cada faixa com os botões + e −. O mapa mostra o círculo em tempo real.</div>
@@ -525,10 +535,10 @@ function _iniciarApp(){
   if(logado==="1")entrarPainel();
   else mostrarTela("tela-login");
 }
-if(document.readyState==="complete")setTimeout(_iniciarApp,800);
-else window.addEventListener("load",()=>setTimeout(_iniciarApp,800));
-document.addEventListener("DOMContentLoaded",()=>setTimeout(_iniciarApp,1200));
-setTimeout(_iniciarApp,3500);
+if(document.readyState==="complete")setTimeout(_iniciarApp,2800);
+else window.addEventListener("load",()=>setTimeout(_iniciarApp,2800));
+document.addEventListener("DOMContentLoaded",()=>setTimeout(_iniciarApp,3200));
+setTimeout(_iniciarApp,5500);
 
 // ── LOGIN ──
 function fazerLogin(){
@@ -579,7 +589,7 @@ function abrirAba(id){
   if(map[id]!==undefined&&tabs[map[id]])tabs[map[id]].classList.add("ativo");
 
   switch(id){
-    case"dashboard":carregarDashboard();iniciarLive();renderCardsExtrasDash();break;
+    case"dashboard":carregarDashboard();renderCardsExtrasDash();break;
     case"corridas":carregarCorridas("todas");break;
     case"motoristas":carregarMotoristas();break;
     case"passageiros":carregarPassageiros();break;
@@ -598,32 +608,8 @@ function mostrarLoading(s){document.getElementById("loading").classList.toggle("
 </script>
 <script>
 // ── DASHBOARD ──
-async function carregarDashboard(){
-  try{
-    const hoje=new Date();hoje.setHours(0,0,0,0);
-    const snapC=await db.collection("cj_corridas").where("status","==","concluida").get();
-    let corridasHoje=0;
-    snapC.docs.forEach(d=>{
-      const c=d.data();
-      const dt=c.criadoEm?c.criadoEm.toDate():new Date(0);
-      if(dt>=hoje)corridasHoje++;
-    });
-    document.getElementById("dash-corridas-hoje").textContent=corridasHoje;
-
-    // Créditos vendidos hoje (soma dos registros de compra, se existir coleção de transações)
-    let receitaHoje=0;
-    try{
-      const snapT=await db.collection("cj_transacoes_creditos").where("data",">=",hoje).get();
-      snapT.docs.forEach(d=>receitaHoje+=(d.data().valor||0));
-    }catch(e){}
-    document.getElementById("dash-receita-hoje").textContent="R$ "+receitaHoje.toFixed(2).replace(".",",");
-
-    const snapM=await db.collection("cj_motoristas").where("online","==",true).get();
-    document.getElementById("dash-motoristas-online").textContent=snapM.size;
-
-    const snapA=await db.collection("cj_corridas").where("status","==","aguardando").get();
-    document.getElementById("dash-aguardando").textContent=snapA.size;
-  }catch(e){console.error(e);}
+function carregarDashboard(){
+  // Dados agora vêm todos de calcularDadosCardsDash() / renderCardsExtrasDash()
 }
 
 function iniciarLive(){
@@ -632,8 +618,6 @@ function iniciarLive(){
     const el=document.getElementById("lista-live");
     if(snap.empty){el.innerHTML="<div class='vazio'>Nenhuma corrida ativa no momento</div>";return;}
     el.innerHTML=snap.docs.map(d=>renderCorridaCard(d.data())).join("");
-    const aguardando=snap.docs.filter(d=>d.data().status==="aguardando").length;
-    document.getElementById("dash-aguardando").textContent=aguardando;
   });
 }
 
@@ -1677,6 +1661,10 @@ document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>{if(sessionStor
 <script>
 // ── CARDS EXTRAS CUSTOMIZÁVEIS DO DASHBOARD ──
 const CARDS_DASH_DISPONIVEIS=[
+  {id:"corridas_hoje",nome:"Corridas hoje",desc:"Concluídas no dia",icon:"🚗",fixo:true},
+  {id:"creditos_hoje",nome:"Créditos vendidos hoje",desc:"Total vendido aos motoristas",icon:"💰",fixo:true},
+  {id:"motoristas_online",nome:"Motoristas online",desc:"Disponíveis agora",icon:"🏍️",fixo:true},
+  {id:"aguardando",nome:"Aguardando motorista",desc:"Corridas pendentes",icon:"⏳",fixo:true},
   {id:"total_motoristas",nome:"Total de motoristas",desc:"Motoristas cadastrados",icon:"🏍️"},
   {id:"total_passageiros",nome:"Total de passageiros",desc:"Passageiros cadastrados",icon:"👤"},
   {id:"corridas_semana",nome:"Corridas da semana",desc:"Total concluído nos últimos 7 dias",icon:"📅"},
@@ -1691,7 +1679,7 @@ function getConfigCardsDash(){
     const s=localStorage.getItem("cj_admin_cards");
     if(s)return JSON.parse(s);
   }catch(e){}
-  const def=CARDS_DASH_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:false,tam:1,ordem:i}));
+  const def=CARDS_DASH_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:!!c.fixo,tam:c.fixo?2:1,ordem:i}));
   localStorage.setItem("cj_admin_cards",JSON.stringify(def));
   return def;
 }
@@ -1718,35 +1706,45 @@ async function renderCardsExtrasDash(){
 async function calcularDadosCardsDash(){
   const dados={};
   try{
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+
     const snapM=await db.collection("cj_motoristas").get();
     dados.total_motoristas={val:snapM.size,sub:"cadastrados"};
     dados.motoristas_bloqueados={val:snapM.docs.filter(d=>d.data().bloqueado).length,sub:"contas suspensas"};
     dados.alertas_pendentes={val:snapM.docs.filter(d=>d.data().explicacaoAvaliacao).length,sub:"aguardando revisão"};
+    dados.motoristas_online={val:snapM.docs.filter(d=>d.data().online).length,sub:"disponíveis agora"};
 
     const snapP=await db.collection("cj_passageiros").get();
     dados.total_passageiros={val:snapP.size,sub:"cadastrados"};
 
+    const snapA=await db.collection("cj_corridas").where("status","==","aguardando").get();
+    dados.aguardando={val:snapA.size,sub:"corridas pendentes"};
+
     const snapC=await db.collection("cj_corridas").where("status","==","concluida").get();
     const semana=new Date();semana.setDate(semana.getDate()-7);
-    let cSemana=0,totalAval=0,numAval=0;
+    let cSemana=0,cHoje=0,totalAval=0,numAval=0;
     snapC.docs.forEach(d=>{
       const c=d.data();
       const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
       if(dt>=semana)cSemana++;
+      if(dt>=hoje)cHoje++;
       if(c.avaliacaoPassageiro){totalAval+=c.avaliacaoPassageiro;numAval++;}
     });
+    dados.corridas_hoje={val:cHoje,sub:"concluídas hoje"};
     dados.corridas_semana={val:cSemana,sub:"últimos 7 dias"};
     dados.aval_media={val:numAval>0?(totalAval/numAval).toFixed(1)+" ⭐":"—",sub:"média geral"};
 
-    let receitaSemana=0;
+    let receitaSemana=0,receitaHoje=0;
     try{
       const snapT=await db.collection("cj_transacoes_creditos").get();
       snapT.docs.forEach(d=>{
         const t=d.data();
         const dt=t.data&&t.data.toDate?t.data.toDate():(t.data?new Date(t.data):new Date(0));
         if(dt>=semana)receitaSemana+=(t.valor||0);
+        if(dt>=hoje)receitaHoje+=(t.valor||0);
       });
     }catch(e){}
+    dados.creditos_hoje={val:"R$ "+receitaHoje.toFixed(2).replace(".",","),sub:"vendidos hoje"};
     dados.receita_semana={val:"R$ "+receitaSemana.toFixed(2).replace(".",","),sub:"esta semana"};
   }catch(e){}
   return dados;
@@ -1846,6 +1844,8 @@ function renderConfigCardsDashLista(){
   }).join("");
 }
 function toggleCardDash(id){
+  const info=CARDS_DASH_DISPONIVEIS.find(x=>x.id===id);
+  if(info&&info.fixo){toast("Este card é essencial e não pode ser desativado");return;}
   const cards=getConfigCardsDash();
   const c=cards.find(x=>x.id===id);
   if(c){
@@ -1870,6 +1870,81 @@ function criarModalConfigCards(){
   document.body.appendChild(div.firstElementChild);
 }
 </script>
+<script>
+function abrirCorridasLiveModal(){
+  if(!document.getElementById("modal-live"))criarModalLive();
+  document.getElementById("modal-live").classList.add("show");
+  iniciarLive();
+}
+function fecharCorridasLiveModal(){
+  document.getElementById("modal-live").classList.remove("show");
+  if(unsubLive){unsubLive();unsubLive=null;}
+}
+function criarModalLive(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-live" class="modal-din" style="position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,0.9);backdrop-filter:blur(6px);">
+    <div style="position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(var(--sat) + 20px) 18px calc(var(--sab) + 30px);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="font-size:16px;font-weight:800;color:#fff;">Corridas em tempo real</div><div class="live-dot">Ao vivo</div></div>
+        <button onclick="fecharCorridasLiveModal()" style="background:var(--card2);border:1px solid var(--border);color:var(--roxo-claro);width:36px;height:36px;border-radius:11px;font-size:16px;cursor:pointer;">✕</button>
+      </div>
+      <div id="lista-live"><div class="vazio">Carregando...</div></div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+</script>
+<script>
+// ── PERFIS PRONTOS DE PREÇO (calibrados: começa barato, motorista gasta no máx. 3 créditos) ──
+const PERFIS_PRECO={
+  inicial:[
+    {ate:2,precoPassageiro:6,creditoMotorista:1},
+    {ate:5,precoPassageiro:9,creditoMotorista:1},
+    {ate:10,precoPassageiro:14,creditoMotorista:2},
+    {ate:20,precoPassageiro:20,creditoMotorista:2},
+    {ate:35,precoPassageiro:28,creditoMotorista:3},
+  ],
+  baixo:[
+    {ate:2,precoPassageiro:7,creditoMotorista:1},
+    {ate:5,precoPassageiro:10,creditoMotorista:1},
+    {ate:10,precoPassageiro:16,creditoMotorista:2},
+    {ate:20,precoPassageiro:22,creditoMotorista:2},
+    {ate:35,precoPassageiro:30,creditoMotorista:3},
+  ],
+  medio:[
+    {ate:2,precoPassageiro:8,creditoMotorista:1},
+    {ate:5,precoPassageiro:12,creditoMotorista:2},
+    {ate:10,precoPassageiro:18,creditoMotorista:2},
+    {ate:20,precoPassageiro:25,creditoMotorista:3},
+    {ate:35,precoPassageiro:35,creditoMotorista:3},
+  ],
+  altomedio:[
+    {ate:2,precoPassageiro:9,creditoMotorista:2},
+    {ate:5,precoPassageiro:14,creditoMotorista:2},
+    {ate:10,precoPassageiro:21,creditoMotorista:3},
+    {ate:20,precoPassageiro:29,creditoMotorista:3},
+    {ate:35,precoPassageiro:40,creditoMotorista:3},
+  ],
+  alto:[
+    {ate:2,precoPassageiro:10,creditoMotorista:2},
+    {ate:5,precoPassageiro:16,creditoMotorista:2},
+    {ate:10,precoPassageiro:24,creditoMotorista:3},
+    {ate:20,precoPassageiro:33,creditoMotorista:3},
+    {ate:35,precoPassageiro:45,creditoMotorista:3},
+  ],
+};
+function aplicarPerfilPreco(nome){
+  const perfil=PERFIS_PRECO[nome];
+  if(!perfil)return;
+  faixasPreco=JSON.parse(JSON.stringify(perfil));
+  faixaAtivaIdx=null;
+  renderFaixasLista();
+  desenharCirculos();
+  toast("Perfil aplicado! Toque em 'Salvar tabela de preços' para confirmar.");
+}
+</script>
+
+
 
 
 
