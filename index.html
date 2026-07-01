@@ -7,12 +7,14 @@
 <meta name="theme-color" content="#1e1b4b"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="CJ Painel"/>
 <link rel="manifest" id="manifest-link"/>
 <link rel="apple-touch-icon" id="apple-icon"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -21,14 +23,23 @@
   --bg:#0a0a1a;--bg2:#0f0f2a;--card:#13132a;--card2:#1a1a35;
   --border:rgba(109,40,217,0.2);--text:#e8e8ff;--muted:#7878aa;
   --success:#22c55e;--danger:#ef4444;--warn:#f59e0b;--laranja:#f97316;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
 }
-html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica Neue',sans-serif;color:var(--text);overflow:hidden;}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica Neue',sans-serif;color:var(--text);overflow:hidden;touch-action:pan-x pan-y;-webkit-user-select:none;user-select:none;}
+input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .screen{display:none;position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;flex-direction:column;}
 .screen.ativo{display:flex;}
+@keyframes gira{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+
+/* CANVAS PARTÍCULAS */
+#cv{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;display:block;}
 
 /* SPLASH */
-#tela-splash{background:linear-gradient(160deg,#1e1b4b,#0a0a1a);align-items:center;justify-content:center;gap:24px;}
-.splash-logo{width:130px;height:130px;border-radius:32px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(109,40,217,0.5);animation:logoPulse 2s ease-in-out infinite;}
+#tela-splash{align-items:center;justify-content:center;gap:20px;position:relative;z-index:1;}
+.splash-logo{width:130px;height:130px;border-radius:32px;overflow:hidden;box-shadow:0 0 60px rgba(109,40,217,0.5);animation:logoPulse 2s ease-in-out infinite;}
+.splash-logo img{width:100%;height:100%;object-fit:cover;}
 @keyframes logoPulse{0%,100%{box-shadow:0 0 60px rgba(109,40,217,0.5);}50%{box-shadow:0 0 90px rgba(109,40,217,0.7);}}
 .splash-title{font-size:30px;font-weight:900;color:#fff;text-align:center;line-height:1.2;}
 .splash-title span{background:linear-gradient(135deg,var(--ciano),var(--roxo-claro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
@@ -38,35 +49,39 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 @keyframes loader{0%{transform:translateX(-100%);}100%{transform:translateX(350%);}}
 
 /* LOGIN */
-#tela-login{background:linear-gradient(160deg,#1e1b4b,#0a0a1a);align-items:center;justify-content:center;padding:40px 24px;min-height:100%;}
-.login-box{width:100%;max-width:380px;display:flex;flex-direction:column;gap:24px;align-items:center;}
-.login-logo{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(109,40,217,0.4);}
-.login-titulo{font-size:26px;font-weight:900;color:#fff;text-align:center;}
-.login-sub{font-size:14px;color:var(--muted);text-align:center;margin-top:-16px;}
+#tela-login{align-items:center;justify-content:center;padding:40px 24px;min-height:100%;padding-top:max(40px,var(--sat));position:relative;z-index:1;}
+.login-box{width:100%;max-width:380px;display:flex;flex-direction:column;gap:20px;align-items:center;}
+.login-logo{width:88px;height:88px;border-radius:22px;overflow:hidden;box-shadow:0 8px 32px rgba(109,40,217,0.4);}
+.login-logo img{width:100%;height:100%;object-fit:cover;}
+.login-titulo{font-size:24px;font-weight:900;color:#fff;text-align:center;}
+.login-sub{font-size:13px;color:var(--muted);text-align:center;margin-top:-12px;}
 .login-form{width:100%;display:flex;flex-direction:column;gap:12px;}
-.campo-input{width:100%;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:border-color 0.2s;-webkit-appearance:none;text-align:center;letter-spacing:4px;font-size:20px;}
+.campo-input{width:100%;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
 .campo-input:focus{border-color:var(--roxo);}
-.campo-input::placeholder{letter-spacing:0;font-size:14px;color:var(--muted);}
-.btn-entrar{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(109,40,217,0.35);transition:opacity 0.2s;}
+.campo-input::placeholder{color:var(--muted);}
+.pin-input{text-align:center;letter-spacing:6px;font-size:22px;}
+.pin-input::placeholder{letter-spacing:0;font-size:14px;}
+.btn-entrar{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(109,40,217,0.35);}
 .btn-entrar:active{opacity:0.85;}
 
 /* HEADER */
-.painel-header{background:linear-gradient(180deg,#1e1b4b,transparent);padding:56px 20px 16px;padding-top:max(56px,calc(env(safe-area-inset-top)+20px));}
-.painel-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.painel-titulo{font-size:22px;font-weight:900;color:#fff;}
-.painel-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:rgba(109,40,217,0.12);border:1px solid rgba(109,40,217,0.3);font-size:11px;font-weight:700;color:var(--roxo-claro);letter-spacing:0.5px;}
+.painel-header{padding:20px 18px 14px;padding-top:calc(var(--sat) + 20px);background:linear-gradient(180deg,rgba(30,27,75,0.96) 0%,rgba(15,15,42,0.7) 70%,transparent 100%);position:relative;}
+.painel-header-top{display:flex;align-items:center;gap:10px;position:relative;min-height:48px;}
+.painel-logo-central{width:52px;height:52px;border-radius:14px;object-fit:cover;position:absolute;left:0;right:0;margin:0 auto;box-shadow:0 0 16px rgba(139,92,246,0.5);}
+.painel-titulo{font-size:16px;font-weight:900;color:#fff;}
+.painel-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;background:rgba(109,40,217,0.12);border:1px solid rgba(109,40,217,0.3);font-size:10px;font-weight:700;color:var(--roxo-claro);letter-spacing:0.4px;}
 .painel-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:blink 2s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
-.btn-sair-header{padding:8px 14px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-menu-ham{background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:12px;color:var(--roxo-claro);font-size:20px;cursor:pointer;padding:8px 12px;flex-shrink:0;margin-left:auto;position:relative;z-index:1;}
 
 /* TABS */
-.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:1;}
 .tabs::-webkit-scrollbar{display:none;}
-.tab{flex-shrink:0;padding:12px 16px;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.tab{flex-shrink:0;padding:12px 16px;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;white-space:nowrap;}
 .tab.ativo{color:var(--roxo-claro);border-bottom-color:var(--roxo-claro);}
 
 /* CONTEÚDO DAS ABAS */
-.aba{display:none;padding:16px 20px 100px;flex-direction:column;gap:14px;}
+.aba{display:none;padding:16px 20px 40px;flex-direction:column;gap:14px;position:relative;z-index:1;}
 .aba.ativa{display:flex;}
 
 /* CARDS RESUMO */
@@ -101,118 +116,76 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 .corrida-pessoas{font-size:12px;color:var(--muted);}
 .corrida-valor-chip{font-size:15px;font-weight:800;color:var(--warn);}
 
-/* MOTORISTAS */
-.motorista-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;}
-.motorista-card-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.mot-foto{width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--roxo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.mot-foto img{width:100%;height:100%;object-fit:cover;}
-.mot-info{flex:1;}
-.mot-nome{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
-.mot-fone{font-size:12px;color:var(--muted);}
-.mot-online{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;}
-.mot-online.on{background:rgba(34,197,94,0.12);color:var(--success);border:1px solid rgba(34,197,94,0.25);}
-.mot-online.off{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border);}
-.mot-stats{display:flex;gap:8px;margin-bottom:12px;}
-.mot-stat{flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;}
-.mot-stat-val{font-size:15px;font-weight:700;color:#fff;margin-bottom:1px;}
-.mot-stat-label{font-size:10px;color:var(--muted);}
-.mot-acoes{display:flex;gap:8px;}
-.btn-credito{flex:1;padding:10px;border-radius:12px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-bloquear{flex:1;padding:10px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
-.btn-desbloquear{flex:1;padding:10px;border-radius:12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:var(--success);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.vazio{padding:40px;text-align:center;color:var(--muted);font-size:14px;}
+.secao-label{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
 
-/* PASSAGEIROS */
-.passageiro-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;}
-.pass-card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
-.pass-foto{width:44px;height:44px;border-radius:50%;background:var(--card2);border:2px solid var(--indigo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.pass-foto img{width:100%;height:100%;object-fit:cover;}
-.pass-info{flex:1;}
-.pass-nome{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;}
-.pass-fone{font-size:12px;color:var(--muted);}
-.pass-tipo{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(79,70,229,0.12);color:var(--ciano);border:1px solid rgba(79,70,229,0.2);}
-.pass-stats-row{display:flex;gap:8px;}
-.pass-stat{flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;}
-.pass-stat-val{font-size:14px;font-weight:700;color:#fff;margin-bottom:1px;}
-.pass-stat-label{font-size:10px;color:var(--muted);}
+/* TOAST / LOADING */
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--text);z-index:99999;opacity:0;transition:all 0.3s;white-space:normal;text-align:center;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,0.4);pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#loading{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+#loading.show{display:flex;}
+.loading-spinner{width:48px;height:48px;border:3px solid rgba(109,40,217,0.2);border-top-color:var(--roxo);border-radius:50%;animation:spin 0.8s linear infinite;}
 
-/* CONFIGURAÇÕES */
+
+/* MENU LATERAL (igual passageiro/motorista) */
+#menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8000;}
+#menu-lateral{display:none;position:fixed;top:0;right:0;bottom:0;width:282px;background:var(--card);border-left:1px solid var(--border);z-index:8001;overflow-y:auto;}
+.menu-hdr{padding:calc(var(--sat) + 46px) 18px 18px;background:linear-gradient(180deg,var(--roxo-escuro),var(--card));border-bottom:1px solid var(--border);text-align:center;}
+.menu-logo{width:80px;height:80px;border-radius:22px;overflow:hidden;margin:0 auto 12px;box-shadow:0 6px 20px rgba(139,92,246,0.3);}
+.menu-logo img{width:100%;height:100%;object-fit:cover;}
+.menu-app{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;}
+.menu-dev-por{font-size:10px;color:var(--muted);margin-bottom:5px;}
+.menu-ret{position:relative;display:inline-block;border-radius:12px;padding:2px;overflow:hidden;}
+.menu-ret-luz{position:absolute;top:50%;left:50%;width:200%;height:200%;background:conic-gradient(#ef4444,#38bdf8,#8b5cf6,#22c55e,#ef4444);animation:gira 2s linear infinite;}
+.menu-ret-inner{position:relative;z-index:1;background:var(--card2);border-radius:10px;padding:6px 16px;}
+.menu-ret-nome{font-size:12px;font-weight:800;color:var(--roxo-claro);white-space:nowrap;}
+.menu-items{padding:8px 18px 36px;}
+.menu-item{padding:16px 0;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;border-bottom:1px solid rgba(139,92,246,0.06);display:flex;align-items:center;gap:9px;}
+.menu-item:last-child{border-bottom:none;}
+.menu-sep{height:1px;background:var(--border);margin:5px 0;}
+
+/* MAPA DE RAIOS DE PREÇO */
+.mapa-raio-wrap{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+.mapa-raio-container{height:340px;position:relative;}
+#mapa-raios{width:100%;height:100%;}
+.mapa-raio-legenda{position:absolute;top:10px;left:10px;z-index:999;background:rgba(10,10,26,0.9);border:1px solid var(--border);border-radius:12px;padding:8px 12px;font-size:11px;color:var(--text);max-width:140px;}
+.raio-faixas-lista{padding:14px;display:flex;flex-direction:column;gap:10px;}
+.raio-faixa-item{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:12px 14px;}
+.raio-faixa-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.raio-faixa-cor{width:14px;height:14px;border-radius:4px;flex-shrink:0;}
+.raio-faixa-titulo{font-size:13px;font-weight:700;color:#fff;flex:1;margin-left:8px;}
+.raio-faixa-remover{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;width:26px;height:26px;border-radius:8px;font-size:14px;cursor:pointer;flex-shrink:0;}
+.raio-faixa-campos{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.raio-campo{display:flex;flex-direction:column;gap:3px;}
+.raio-campo-label{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;}
+.raio-campo-input{padding:8px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;font-family:inherit;outline:none;width:100%;text-align:center;}
+.raio-campo-input:focus{border-color:var(--roxo);}
+.btn-add-faixa{width:100%;padding:13px;border-radius:14px;background:rgba(139,92,246,0.1);border:1px dashed var(--roxo-claro);color:var(--roxo-claro);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-salvar-faixas{width:100%;padding:15px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;}
+
+/* CONFIG (genérico) */
 .config-secao{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
 .config-titulo{padding:14px 16px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;border-bottom:1px solid var(--border);}
-.config-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(109,40,217,0.08);}
+.config-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(109,40,217,0.08);gap:10px;}
 .config-item:last-child{border-bottom:none;}
-.config-item-info{flex:1;}
+.config-item-info{flex:1;min-width:0;}
 .config-item-titulo{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
 .config-item-sub{font-size:12px;color:var(--muted);}
 .config-toggle{position:relative;width:48px;height:26px;border-radius:13px;background:var(--card2);border:2px solid var(--border);cursor:pointer;transition:background 0.3s;flex-shrink:0;}
 .config-toggle.on{background:var(--roxo);border-color:var(--roxo);}
 .config-toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform 0.3s;box-shadow:0 2px 4px rgba(0,0,0,0.3);}
 .config-toggle.on::after{transform:translateX(22px);}
-.config-input-inline{padding:6px 12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;width:80px;text-align:center;}
+.config-input-inline{padding:6px 12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;width:90px;text-align:center;}
 .config-input-inline:focus{border-color:var(--roxo);}
-
-/* RECEITA */
-.receita-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;}
-.receita-total{text-align:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
-.receita-total-val{font-size:42px;font-weight:900;color:var(--warn);line-height:1;}
-.receita-total-label{font-size:13px;color:var(--muted);margin-top:4px;}
-.receita-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.receita-stat{background:var(--card2);border-radius:14px;padding:12px;text-align:center;}
-.receita-stat-val{font-size:18px;font-weight:800;color:#fff;margin-bottom:2px;}
-.receita-stat-label{font-size:11px;color:var(--muted);}
-
-/* MODAL CRÉDITO */
-#modal-credito{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);}
-#modal-credito.show{display:flex;}
-.credito-sheet{background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:24px;padding-bottom:max(40px,calc(env(safe-area-inset-bottom)+24px));width:100%;animation:slideUp 0.3s ease;}
-@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.credito-titulo{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;}
-.credito-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
-.credito-opcoes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-.credito-opcao{padding:14px;background:var(--card2);border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all 0.2s;}
-.credito-opcao.sel{border-color:var(--roxo);background:rgba(109,40,217,0.12);}
-.credito-opcao-val{font-size:18px;font-weight:800;color:#fff;margin-bottom:2px;}
-.credito-opcao-label{font-size:11px;color:var(--muted);}
-.credito-custom{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-.credito-custom-label{font-size:13px;color:var(--muted);flex-shrink:0;}
-.credito-custom-input{flex:1;padding:12px 16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:16px;font-family:inherit;outline:none;}
-.credito-custom-input:focus{border-color:var(--roxo);}
-.credito-btns{display:flex;gap:10px;}
-.btn-confirmar-credito{flex:2;padding:15px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-fechar-credito{flex:1;padding:15px;border-radius:16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit;}
-
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;padding-bottom:max(12px,env(safe-area-inset-bottom,12px));z-index:100;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 0;gap:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;border:none;background:none;font-family:inherit;}
-.nav-icon{font-size:20px;}
-.nav-label{font-size:10px;font-weight:600;color:var(--muted);}
-.nav-item.ativo .nav-label{color:var(--roxo-claro);}
-
-/* TOAST / LOADING */
-#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--text);z-index:99999;opacity:0;transition:all 0.3s;white-space:normal;text-align:center;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,0.4);pointer-events:none;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-#loading{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-#loading.show{display:flex;}
-.loading-spinner{width:48px;height:48px;border:3px solid rgba(109,40,217,0.2);border-top-color:var(--roxo);border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-.vazio{padding:40px;text-align:center;color:var(--muted);font-size:14px;}
-.secao-label{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.btn-salvar-sec{padding:8px 16px;border-radius:12px;background:var(--roxo);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;}
 </style>
 </head>
 <body>
+<canvas id="cv"></canvas>
 
 <!-- SPLASH -->
 <div class="screen ativo" id="tela-splash">
-  <div class="splash-logo">
-    <svg viewBox="0 0 80 80" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
-      <rect x="10" y="20" width="60" height="40" rx="8" fill="#8b5cf6"/>
-      <rect x="18" y="28" width="20" height="10" rx="3" fill="rgba(255,255,255,0.9)"/>
-      <rect x="42" y="28" width="20" height="10" rx="3" fill="rgba(255,255,255,0.9)"/>
-      <circle cx="24" cy="50" r="5" fill="#fcd34d"/>
-      <circle cx="56" cy="50" r="5" fill="#fcd34d"/>
-      <line x1="10" y1="40" x2="70" y2="40" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    </svg>
-  </div>
+  <div class="splash-logo"><img id="logo-splash" src="" alt="Corrida Já Admin"/></div>
   <div class="splash-title">Corrida Já<br/><span>Painel Admin</span></div>
   <div class="splash-sub">Gestão completa do sistema</div>
   <div class="splash-loader"></div>
@@ -221,15 +194,11 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 <!-- LOGIN -->
 <div class="screen" id="tela-login">
   <div class="login-box">
-    <div class="login-logo">
-      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-        <path d="M30 8 L38 22 L54 25 L43 36 L46 52 L30 44 L14 52 L17 36 L6 25 L22 22 Z" fill="#fcd34d"/>
-      </svg>
-    </div>
+    <div class="login-logo"><img id="logo-login" src="" alt="Corrida Já Admin"/></div>
     <div class="login-titulo">Painel Admin</div>
     <div class="login-sub">Corrida Já</div>
     <div class="login-form">
-      <input class="campo-input" id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="PIN de acesso"/>
+      <input class="campo-input pin-input" id="pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="PIN de acesso"/>
       <button class="btn-entrar" onclick="fazerLogin()">Entrar no painel</button>
     </div>
   </div>
@@ -239,13 +208,9 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 <div class="screen" id="tela-painel">
   <div class="painel-header">
     <div class="painel-header-top">
-      <div>
-        <div class="painel-titulo">Painel Admin</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <div class="painel-badge"><div class="painel-badge-dot"></div>Online</div>
-        <button class="btn-sair-header" onclick="sair()">Sair</button>
-      </div>
+      <div class="painel-badge"><div class="painel-badge-dot"></div>Online</div>
+      <img id="logo-header" src="" class="painel-logo-central" alt=""/>
+      <button class="btn-menu-ham" onclick="abrirMenu()">☰</button>
     </div>
   </div>
 
@@ -255,6 +220,8 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
     <button class="tab" onclick="abrirAba('corridas')">🚗 Corridas</button>
     <button class="tab" onclick="abrirAba('motoristas')">🏍️ Motoristas</button>
     <button class="tab" onclick="abrirAba('passageiros')">👤 Passageiros</button>
+    <button class="tab" onclick="abrirAba('precos')">🗺️ Preços</button>
+    <button class="tab" onclick="abrirAba('avaliacoes')">⭐ Avaliações</button>
     <button class="tab" onclick="abrirAba('receita')">💰 Receita</button>
     <button class="tab" onclick="abrirAba('config')">⚙️ Config</button>
   </div>
@@ -263,11 +230,10 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
   <div class="aba ativa" id="aba-dashboard">
     <div class="resumo-grid">
       <div class="resumo-card"><div class="resumo-card-icon">🚗</div><div class="resumo-card-val ciano" id="dash-corridas-hoje">0</div><div class="resumo-card-label">Corridas hoje</div></div>
-      <div class="resumo-card"><div class="resumo-card-icon">💰</div><div class="resumo-card-val amarelo" id="dash-receita-hoje">R$ 0</div><div class="resumo-card-label">Receita hoje</div></div>
+      <div class="resumo-card"><div class="resumo-card-icon">💰</div><div class="resumo-card-val amarelo" id="dash-receita-hoje">R$ 0</div><div class="resumo-card-label">Créditos vendidos hoje</div></div>
       <div class="resumo-card"><div class="resumo-card-icon">🏍️</div><div class="resumo-card-val verde" id="dash-motoristas-online">0</div><div class="resumo-card-label">Motoristas online</div></div>
       <div class="resumo-card"><div class="resumo-card-icon">⏳</div><div class="resumo-card-val amarelo" id="dash-aguardando">0</div><div class="resumo-card-label">Aguardando</div></div>
     </div>
-
     <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="live-header">
         <div class="live-titulo">Corridas em tempo real</div>
@@ -297,20 +263,42 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
     <div id="lista-passageiros"><div class="vazio">Carregando...</div></div>
   </div>
 
-  <!-- RECEITA -->
-  <div class="aba" id="aba-receita">
-    <div class="receita-card">
-      <div class="receita-total">
-        <div class="receita-total-val" id="rec-total">R$ 0,00</div>
-        <div class="receita-total-label">Receita total (comissões)</div>
-      </div>
-      <div class="receita-stats">
-        <div class="receita-stat"><div class="receita-stat-val" id="rec-hoje">R$ 0</div><div class="receita-stat-label">Hoje</div></div>
-        <div class="receita-stat"><div class="receita-stat-val" id="rec-semana">R$ 0</div><div class="receita-stat-label">Esta semana</div></div>
-        <div class="receita-stat"><div class="receita-stat-val" id="rec-mes">R$ 0</div><div class="receita-stat-label">Este mês</div></div>
+  <!-- PREÇOS (mapa de raios) -->
+  <div class="aba" id="aba-precos">
+    <div class="secao-label">Configuração de preços por raio</div>
+    <div class="mapa-raio-wrap">
+      <div class="mapa-raio-container">
+        <div class="mapa-raio-legenda" id="mapa-raio-legenda">Toque em uma faixa abaixo para editar o raio no mapa</div>
+        <div id="mapa-raios"></div>
       </div>
     </div>
-    <div class="resumo-grid" style="margin-top:4px;">
+    <div class="raio-faixas-lista" id="lista-faixas-preco"></div>
+    <button class="btn-add-faixa" onclick="adicionarFaixaPreco()">+ Adicionar faixa de preço</button>
+    <button class="btn-salvar-faixas" onclick="salvarFaixasPreco()">💾 Salvar tabela de preços</button>
+  </div>
+
+  <!-- AVALIAÇÕES -->
+  <div class="aba" id="aba-avaliacoes">
+    <div class="secao-label">Alertas de avaliação baixa</div>
+    <div id="lista-alertas-aval"><div class="vazio">Carregando...</div></div>
+    <div class="secao-label" style="margin-top:10px;">Avaliações recentes</div>
+    <div id="lista-avaliacoes"><div class="vazio">Carregando...</div></div>
+  </div>
+
+  <!-- RECEITA -->
+  <div class="aba" id="aba-receita">
+    <div class="config-secao" style="padding:18px;">
+      <div style="text-align:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div style="font-size:42px;font-weight:900;color:var(--warn);line-height:1;" id="rec-total">R$ 0,00</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">Total em créditos vendidos aos motoristas</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="background:var(--card2);border-radius:14px;padding:12px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fff;" id="rec-hoje">R$ 0</div><div style="font-size:11px;color:var(--muted);">Hoje</div></div>
+        <div style="background:var(--card2);border-radius:14px;padding:12px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fff;" id="rec-semana">R$ 0</div><div style="font-size:11px;color:var(--muted);">Esta semana</div></div>
+        <div style="background:var(--card2);border-radius:14px;padding:12px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fff;" id="rec-mes">R$ 0</div><div style="font-size:11px;color:var(--muted);">Este mês</div></div>
+      </div>
+    </div>
+    <div class="resumo-grid">
       <div class="resumo-card"><div class="resumo-card-icon">🚗</div><div class="resumo-card-val ciano" id="rec-total-corridas">0</div><div class="resumo-card-label">Total corridas</div></div>
       <div class="resumo-card"><div class="resumo-card-icon">🏍️</div><div class="resumo-card-val verde" id="rec-total-motoristas">0</div><div class="resumo-card-label">Motoristas ativos</div></div>
       <div class="resumo-card"><div class="resumo-card-icon">👤</div><div class="resumo-card-val ciano" id="rec-total-passageiros">0</div><div class="resumo-card-label">Passageiros</div></div>
@@ -321,104 +309,75 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
   <!-- CONFIG -->
   <div class="aba" id="aba-config">
     <div class="config-secao">
-      <div class="config-titulo">Comissões e Pagamentos</div>
+      <div class="config-titulo">Créditos do motorista</div>
       <div class="config-item">
-        <div class="config-item-info">
-          <div class="config-item-titulo">Sistema de créditos</div>
-          <div class="config-item-sub">Motoristas pagam por crédito antecipado</div>
-        </div>
-        <div class="config-toggle" id="toggle-creditos" onclick="toggleConfig('creditos')"></div>
+        <div class="config-item-info"><div class="config-item-titulo">Saldo máximo (teto)</div><div class="config-item-sub">Deixe 0 para sem limite</div></div>
+        <input class="config-input-inline" id="cfg-teto-credito" type="number" value="200" step="10" min="0"/>
       </div>
       <div class="config-item">
-        <div class="config-item-info">
-          <div class="config-item-titulo">Comissão por corrida (R$)</div>
-          <div class="config-item-sub">Valor descontado do motorista por corrida</div>
-        </div>
-        <input class="config-input-inline" id="cfg-comissao" type="number" value="1.50" step="0.50" min="0"/>
+        <div class="config-item-info"><div class="config-item-titulo">Salvar</div></div>
+        <button class="btn-salvar-sec" onclick="salvarConfigCreditos()">Salvar</button>
+      </div>
+    </div>
+
+    <div class="config-secao">
+      <div class="config-titulo">Contato e Suporte</div>
+      <div class="config-item">
+        <div class="config-item-info"><div class="config-item-titulo">WhatsApp do administrador</div><div class="config-item-sub">Recebe pedidos de recuperação e suporte</div></div>
       </div>
       <div class="config-item">
-        <div class="config-item-info">
-          <div class="config-item-titulo">Salvar configuração</div>
-          <div class="config-item-sub">Aplicar alterações ao sistema</div>
-        </div>
-        <button style="padding:8px 16px;border-radius:12px;background:var(--roxo);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="salvarConfig()">Salvar</button>
+        <input class="campo-input" id="cfg-whatsapp" type="tel" placeholder="5519982480386" style="text-align:left;"/>
+      </div>
+      <div class="config-item">
+        <div class="config-item-info"><div class="config-item-titulo">Salvar</div></div>
+        <button class="btn-salvar-sec" onclick="salvarConfigWhatsapp()">Salvar</button>
       </div>
     </div>
 
     <div class="config-secao">
       <div class="config-titulo">Acesso e Cadastro</div>
       <div class="config-item">
-        <div class="config-item-info">
-          <div class="config-item-titulo">Permitir cadastro sem conta</div>
-          <div class="config-item-sub">Passageiros podem pedir sem login</div>
-        </div>
+        <div class="config-item-info"><div class="config-item-titulo">Permitir cadastro sem conta</div><div class="config-item-sub">Passageiros podem pedir sem login</div></div>
         <div class="config-toggle on" id="toggle-semconta" onclick="toggleConfig('semconta')"></div>
       </div>
       <div class="config-item">
-        <div class="config-item-info">
-          <div class="config-item-titulo">Novos motoristas</div>
-          <div class="config-item-sub">Permitir novos cadastros de motoristas</div>
-        </div>
+        <div class="config-item-info"><div class="config-item-titulo">Novos motoristas</div><div class="config-item-sub">Permitir novos cadastros de motoristas</div></div>
         <div class="config-toggle on" id="toggle-novomotorista" onclick="toggleConfig('novomotorista')"></div>
-      </div>
-    </div>
-
-    <div class="config-secao">
-      <div class="config-titulo">Tabela de Preços</div>
-      <div class="config-item"><div class="config-item-info"><div class="config-item-titulo">Até 2 km</div><div class="config-item-sub">Corrida curta</div></div><input class="config-input-inline" id="preco-2" type="number" value="8.00" step="0.50"/></div>
-      <div class="config-item"><div class="config-item-info"><div class="config-item-titulo">2 a 5 km</div><div class="config-item-sub">Corrida média</div></div><input class="config-input-inline" id="preco-5" type="number" value="12.00" step="0.50"/></div>
-      <div class="config-item"><div class="config-item-info"><div class="config-item-titulo">5 a 10 km</div><div class="config-item-sub">Corrida longa</div></div><input class="config-input-inline" id="preco-10" type="number" value="18.00" step="0.50"/></div>
-      <div class="config-item"><div class="config-item-info"><div class="config-item-titulo">10 a 20 km</div><div class="config-item-sub">Corrida muito longa</div></div><input class="config-input-inline" id="preco-20" type="number" value="25.00" step="0.50"/></div>
-      <div class="config-item"><div class="config-item-info"><div class="config-item-titulo">Acima de 20 km</div><div class="config-item-sub">Corrida extra</div></div><input class="config-input-inline" id="preco-mais" type="number" value="35.00" step="0.50"/></div>
-      <div class="config-item">
-        <div class="config-item-info"><div class="config-item-titulo">Salvar tabela de preços</div></div>
-        <button style="padding:8px 16px;border-radius:12px;background:var(--roxo);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="salvarPrecos()">Salvar</button>
       </div>
     </div>
 
     <div class="config-secao">
       <div class="config-titulo">PIN de Acesso</div>
       <div class="config-item">
-        <div class="config-item-info">
-          <div class="config-item-titulo">Novo PIN</div>
-          <div class="config-item-sub">Mínimo 4 dígitos</div>
-        </div>
+        <div class="config-item-info"><div class="config-item-titulo">Novo PIN</div><div class="config-item-sub">Mínimo 4 dígitos</div></div>
         <input class="config-input-inline" id="novo-pin" type="password" inputmode="numeric" maxlength="8" placeholder="••••"/>
       </div>
       <div class="config-item">
         <div class="config-item-info"><div class="config-item-titulo">Alterar PIN</div></div>
-        <button style="padding:8px 16px;border-radius:12px;background:var(--roxo);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="alterarPin()">Alterar</button>
+        <button class="btn-salvar-sec" onclick="alterarPin()">Alterar</button>
       </div>
     </div>
   </div>
-
-  <!-- BOTTOM NAV FIXO -->
-  <div class="bottom-nav">
-    <button class="nav-item ativo" id="nav-dashboard" onclick="abrirAba('dashboard')"><div class="nav-icon">📊</div><div class="nav-label">Dashboard</div></button>
-    <button class="nav-item" id="nav-corridas" onclick="abrirAba('corridas')"><div class="nav-icon">🚗</div><div class="nav-label">Corridas</div></button>
-    <button class="nav-item" id="nav-motoristas" onclick="abrirAba('motoristas')"><div class="nav-icon">🏍️</div><div class="nav-label">Motoristas</div></button>
-    <button class="nav-item" id="nav-receita" onclick="abrirAba('receita')"><div class="nav-icon">💰</div><div class="nav-label">Receita</div></button>
-    <button class="nav-item" id="nav-config" onclick="abrirAba('config')"><div class="nav-icon">⚙️</div><div class="nav-label">Config</div></button>
-  </div>
-
 </div>
-<div id="modal-credito">
-  <div class="credito-sheet">
-    <div class="credito-titulo" id="credito-titulo">Adicionar créditos</div>
-    <div class="credito-sub" id="credito-sub">Selecione o valor a adicionar</div>
-    <div class="credito-opcoes">
-      <div class="credito-opcao sel" onclick="selecionarCredito(10,this)"><div class="credito-opcao-val">R$10</div><div class="credito-opcao-label">Básico</div></div>
-      <div class="credito-opcao" onclick="selecionarCredito(25,this)"><div class="credito-opcao-val">R$25</div><div class="credito-opcao-label">Médio</div></div>
-      <div class="credito-opcao" onclick="selecionarCredito(50,this)"><div class="credito-opcao-val">R$50</div><div class="credito-opcao-label">Completo</div></div>
+
+<!-- MENU LATERAL -->
+<div id="menu-overlay" onclick="fecharMenu()"></div>
+<div id="menu-lateral">
+  <div class="menu-hdr">
+    <div class="menu-logo"><img id="logo-menu" src="" alt=""/></div>
+    <div class="menu-app">Corrida Já</div>
+    <div class="menu-dev-por">Desenvolvido por</div>
+    <div class="menu-ret">
+      <div class="menu-ret-luz"></div>
+      <div class="menu-ret-inner"><div class="menu-ret-nome">Heitor Serra Neto</div></div>
     </div>
-    <div class="credito-custom">
-      <div class="credito-custom-label">Outro valor:</div>
-      <input class="credito-custom-input" id="credito-custom" type="number" placeholder="R$ 0,00" min="0" step="5" oninput="creditoCustom(this.value)"/>
-    </div>
-    <div class="credito-btns">
-      <button class="btn-fechar-credito" onclick="fecharCredito()">Cancelar</button>
-      <button class="btn-confirmar-credito" onclick="confirmarCredito()">✓ Adicionar crédito</button>
-    </div>
+  </div>
+  <div class="menu-items">
+    <div class="menu-item" onclick="fecharMenu();abrirAba('dashboard')">📊 Dashboard</div>
+    <div class="menu-item" onclick="fecharMenu();abrirAba('precos')">🗺️ Preços por raio</div>
+    <div class="menu-item" onclick="fecharMenu();abrirAba('avaliacoes')">⭐ Avaliações</div>
+    <div class="menu-sep"></div>
+    <div class="menu-item" style="color:#ef4444;" onclick="sair()">🚪 Sair do painel</div>
   </div>
 </div>
 
@@ -426,386 +385,681 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 <div id="loading"><div class="loading-spinner"></div></div>
 
 <script>
+const LOGO_URL="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0877.png";
+document.getElementById("logo-splash").src=LOGO_URL;
+document.getElementById("logo-login").src=LOGO_URL;
+document.getElementById("logo-header").src=LOGO_URL;
+document.getElementById("logo-menu").src=LOGO_URL;
+
 // ── FIREBASE ──
 const firebaseConfig={apiKey:"AIzaSyAts9fsoZ_GrF3MRHDRlAw61Xti2uBkdnM",authDomain:"staffcheck-d6f20.firebaseapp.com",projectId:"staffcheck-d6f20",storageBucket:"staffcheck-d6f20.firebasestorage.app",messagingSenderId:"1055570421019",appId:"1:1055570421019:web:7b5dcc564bfe1c30189fbe"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
 // ── ESTADO ──
-const PIN_PADRAO='1234';
-let pinAtual=localStorage.getItem('cj_admin_pin')||PIN_PADRAO;
-let motoristaSelecionado=null,creditoValor=10;
-let unsubLive=null,filtroCorrente='todas';
-let configs={creditos:false,semconta:true,novomotorista:true,comissao:1.50};
+const PIN_PADRAO="1234";
+let pinAtual=localStorage.getItem("cj_admin_pin")||PIN_PADRAO;
+let unsubLive=null,filtroCorrente="todas";
+let configs={semconta:true,novomotorista:true,tetoCredito:200,whatsappAdmin:"5519982480386"};
 
-// ── PWA ──
+// ── PARTÍCULAS ──
 (function(){
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="#4c1d95"/><rect x="60" y="150" width="392" height="250" rx="50" fill="#8b5cf6"/><rect x="110" y="190" width="130" height="70" rx="20" fill="rgba(255,255,255,0.9)"/><rect x="272" y="190" width="130" height="70" rx="20" fill="rgba(255,255,255,0.9)"/><circle cx="150" cy="370" r="30" fill="#fcd34d"/><circle cx="362" cy="370" r="30" fill="#fcd34d"/></svg>`;
-  const iu='data:image/svg+xml,'+encodeURIComponent(svg);
-  document.getElementById('apple-icon').href=iu;
-  const m={name:'CJ Painel',short_name:'CJ Painel',start_url:'./',display:'standalone',background_color:'#0a0a1a',theme_color:'#4c1d95',lang:'pt-BR',icons:[{src:iu,sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
-  document.getElementById('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
-  const sw=`const C='cj-painel-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./'])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).then(r=>{const cl=r.clone();caches.open(C).then(c=>{if(e.request.method==='GET')c.put(e.request,cl);});return r;}).catch(()=>caches.match(e.request)));});`;
-  if('serviceWorker'in navigator)navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})),{scope:'./'}).catch(()=>{});
+  const cv=document.getElementById("cv");
+  if(!cv)return;
+  const ctx=cv.getContext("2d");
+  function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+  resize();
+  window.addEventListener("resize",resize);
+  const N=46,pts=[];
+  for(let i=0;i<N;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.6});
+  function draw(){
+    ctx.fillStyle="#0a0a1a";ctx.fillRect(0,0,cv.width,cv.height);
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.strokeStyle=`rgba(139,92,246,${(1-d/120)*.15})`;ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
+    }
+    pts.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(139,92,246,.3)";ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
 })();
 
-// ── INIT ──
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    const logado=sessionStorage.getItem('cj_admin_logado');
-    if(logado==='1') entrarPainel();
-    else mostrarTela('tela-login');
-  },2000);
-});
+// ── INIT (robusto, com múltiplas garantias) ──
+let _appIniciado=false;
+function _iniciarApp(){
+  if(_appIniciado)return;_appIniciado=true;
+  const logado=sessionStorage.getItem("cj_admin_logado");
+  if(logado==="1")entrarPainel();
+  else mostrarTela("tela-login");
+}
+if(document.readyState==="complete")setTimeout(_iniciarApp,800);
+else window.addEventListener("load",()=>setTimeout(_iniciarApp,800));
+document.addEventListener("DOMContentLoaded",()=>setTimeout(_iniciarApp,1200));
+setTimeout(_iniciarApp,3500);
 
 // ── LOGIN ──
 function fazerLogin(){
-  const pin=document.getElementById('pin-input').value;
-  if(pin===pinAtual){sessionStorage.setItem('cj_admin_logado','1');entrarPainel();}
-  else{toast('PIN incorreto!');document.getElementById('pin-input').value='';}
+  const pin=document.getElementById("pin-input").value;
+  if(pin===pinAtual){sessionStorage.setItem("cj_admin_logado","1");entrarPainel();}
+  else{toast("PIN incorreto!");document.getElementById("pin-input").value="";}
 }
-
-document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')fazerLogin();});
+document.getElementById("pin-input").addEventListener("keydown",e=>{if(e.key==="Enter")fazerLogin();});
 
 function entrarPainel(){
-  mostrarTela('tela-painel');
+  mostrarTela("tela-painel");
   carregarConfigs();
-  abrirAba('dashboard');
+  abrirAba("dashboard");
 }
-
 function sair(){
-  sessionStorage.removeItem('cj_admin_logado');
+  sessionStorage.removeItem("cj_admin_logado");
   if(unsubLive){unsubLive();unsubLive=null;}
-  mostrarTela('tela-login');
-  document.getElementById('pin-input').value='';
+  mostrarTela("tela-login");
+  document.getElementById("pin-input").value="";
 }
 
 // ── NAVEGAÇÃO ──
-function mostrarTela(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('ativo'));document.getElementById(id).classList.add('ativo');}
+function mostrarTela(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));
+  const el=document.getElementById(id);
+  if(el)el.classList.add("ativo");
+  const ov=document.getElementById("menu-overlay"),ml=document.getElementById("menu-lateral");
+  if(ov)ov.style.display="none";
+  if(ml)ml.style.display="none";
+}
+function abrirMenu(){document.getElementById("menu-overlay").style.display="block";document.getElementById("menu-lateral").style.display="block";}
+function fecharMenu(){
+  const ov=document.getElementById("menu-overlay"),ml=document.getElementById("menu-lateral");
+  if(ov)ov.style.display="none";
+  if(ml)ml.style.display="none";
+}
 
 function abrirAba(id){
-  document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));
-  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('ativo'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('ativo'));
-  document.getElementById('aba-'+id).classList.add('ativa');
-
-  // Atualizar tab no topo
-  const map={dashboard:0,corridas:1,motoristas:2,passageiros:3,receita:4,config:5};
-  const tabs=document.querySelectorAll('.tabs .tab');
-  if(map[id]!==undefined && tabs[map[id]]) tabs[map[id]].classList.add('ativo');
-
-  // Atualizar bottom nav
-  const navMap={dashboard:'nav-dashboard',corridas:'nav-corridas',motoristas:'nav-motoristas',receita:'nav-receita',config:'nav-config'};
-  if(navMap[id]) document.getElementById(navMap[id])&&document.getElementById(navMap[id]).classList.add('ativo');
+  document.querySelectorAll(".aba").forEach(a=>a.classList.remove("ativa"));
+  document.querySelectorAll(".tabs .tab").forEach(t=>t.classList.remove("ativo"));
+  document.getElementById("aba-"+id).classList.add("ativa");
+  const tabs=[...document.querySelectorAll(".tabs .tab")];
+  const map={dashboard:0,corridas:1,motoristas:2,passageiros:3,precos:4,avaliacoes:5,receita:6,config:7};
+  if(map[id]!==undefined&&tabs[map[id]])tabs[map[id]].classList.add("ativo");
 
   switch(id){
-    case 'dashboard': carregarDashboard();iniciarLive();break;
-    case 'corridas': carregarCorridas('todas');break;
-    case 'motoristas': carregarMotoristas();break;
-    case 'passageiros': carregarPassageiros();break;
-    case 'receita': carregarReceita();break;
-    case 'config': carregarConfigs();break;
+    case"dashboard":carregarDashboard();iniciarLive();break;
+    case"corridas":carregarCorridas("todas");break;
+    case"motoristas":carregarMotoristas();break;
+    case"passageiros":carregarPassageiros();break;
+    case"precos":carregarFaixasPreco();break;
+    case"avaliacoes":carregarAvaliacoes();break;
+    case"receita":carregarReceita();break;
+    case"config":carregarConfigs();break;
   }
 }
 
+// ── UTILS ──
+function formatarData(ts){if(!ts)return"—";const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString("pt-BR")+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}
+function formatarDataSimples(ts){if(!ts)return"—";const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString("pt-BR");}
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),3500);}
+function mostrarLoading(s){document.getElementById("loading").classList.toggle("show",s);}
+</script>
+<script>
 // ── DASHBOARD ──
 async function carregarDashboard(){
   try{
     const hoje=new Date();hoje.setHours(0,0,0,0);
-
-    // Corridas hoje
-    const snapC=await db.collection('cj_corridas').where('status','==','concluida').get();
-    let corridasHoje=0,receitaHoje=0,totalAval=0,numAval=0;
+    const snapC=await db.collection("cj_corridas").where("status","==","concluida").get();
+    let corridasHoje=0;
     snapC.docs.forEach(d=>{
       const c=d.data();
       const dt=c.criadoEm?c.criadoEm.toDate():new Date(0);
-      if(dt>=hoje){corridasHoje++;receitaHoje+=(c.valor||0)*configs.comissao;}
-      if(c.avaliacaoPassageiro){totalAval+=c.avaliacaoPassageiro;numAval++;}
+      if(dt>=hoje)corridasHoje++;
     });
-    document.getElementById('dash-corridas-hoje').textContent=corridasHoje;
-    document.getElementById('dash-receita-hoje').textContent='R$ '+receitaHoje.toFixed(2).replace('.',',');
+    document.getElementById("dash-corridas-hoje").textContent=corridasHoje;
 
-    // Motoristas online
-    const snapM=await db.collection('cj_motoristas').where('online','==',true).get();
-    document.getElementById('dash-motoristas-online').textContent=snapM.size;
+    // Créditos vendidos hoje (soma dos registros de compra, se existir coleção de transações)
+    let receitaHoje=0;
+    try{
+      const snapT=await db.collection("cj_transacoes_creditos").where("data",">=",hoje).get();
+      snapT.docs.forEach(d=>receitaHoje+=(d.data().valor||0));
+    }catch(e){}
+    document.getElementById("dash-receita-hoje").textContent="R$ "+receitaHoje.toFixed(2).replace(".",",");
 
-    // Aguardando
-    const snapA=await db.collection('cj_corridas').where('status','==','aguardando').get();
-    document.getElementById('dash-aguardando').textContent=snapA.size;
+    const snapM=await db.collection("cj_motoristas").where("online","==",true).get();
+    document.getElementById("dash-motoristas-online").textContent=snapM.size;
+
+    const snapA=await db.collection("cj_corridas").where("status","==","aguardando").get();
+    document.getElementById("dash-aguardando").textContent=snapA.size;
   }catch(e){console.error(e);}
 }
 
 function iniciarLive(){
-  if(unsubLive) unsubLive();
-  unsubLive=db.collection('cj_corridas').where('status','in',['aguardando','aceita','a_caminho']).onSnapshot(snap=>{
-    const el=document.getElementById('lista-live');
-    if(snap.empty){el.innerHTML='<div class="vazio">Nenhuma corrida ativa no momento</div>';return;}
-    el.innerHTML=snap.docs.map(d=>renderCorridaCard(d.data())).join('');
-    // Atualizar contador aguardando
-    const aguardando=snap.docs.filter(d=>d.data().status==='aguardando').length;
-    document.getElementById('dash-aguardando').textContent=aguardando;
+  if(unsubLive)unsubLive();
+  unsubLive=db.collection("cj_corridas").where("status","in",["aguardando","aceita","a_caminho","motorista_chegou"]).onSnapshot(snap=>{
+    const el=document.getElementById("lista-live");
+    if(snap.empty){el.innerHTML="<div class='vazio'>Nenhuma corrida ativa no momento</div>";return;}
+    el.innerHTML=snap.docs.map(d=>renderCorridaCard(d.data())).join("");
+    const aguardando=snap.docs.filter(d=>d.data().status==="aguardando").length;
+    document.getElementById("dash-aguardando").textContent=aguardando;
   });
 }
 
 // ── CORRIDAS ──
 async function carregarCorridas(filtro){
   filtroCorrente=filtro;
-  const el=document.getElementById('lista-corridas');
-  el.innerHTML='<div class="vazio">Carregando...</div>';
-
-  // Atualizar botões de filtro
-  ['todas','concluida','cancelada_cliente'].forEach(f=>{
-    const id='filtro-'+(f==='todas'?'todas':f==='concluida'?'concluidas':'canceladas');
+  const el=document.getElementById("lista-corridas");
+  el.innerHTML="<div class='vazio'>Carregando...</div>";
+  ["todas","concluida","cancelada_cliente"].forEach(f=>{
+    const id="filtro-"+(f==="todas"?"todas":f==="concluida"?"concluidas":"canceladas");
     const el2=document.getElementById(id);
-    if(el2) el2.classList.toggle('ativo',f===filtro);
+    if(el2)el2.classList.toggle("ativo",f===filtro);
   });
-
   try{
-    let query=db.collection('cj_corridas').orderBy('criadoEm','desc').limit(50);
-    if(filtro!=='todas') query=query.where('status','==',filtro);
+    let query=db.collection("cj_corridas").orderBy("criadoEm","desc").limit(50);
+    if(filtro!=="todas")query=query.where("status","==",filtro);
     const snap=await query.get();
-    if(snap.empty){el.innerHTML='<div class="vazio">Nenhuma corrida encontrada</div>';return;}
-    el.innerHTML=snap.docs.map(d=>renderCorridaCard(d.data())).join('');
-  }catch(e){el.innerHTML='<div class="vazio">Erro ao carregar</div>';}
+    if(snap.empty){el.innerHTML="<div class='vazio'>Nenhuma corrida encontrada</div>";return;}
+    el.innerHTML=snap.docs.map(d=>renderCorridaCard(d.data())).join("");
+  }catch(e){el.innerHTML="<div class='vazio'>Erro ao carregar</div>";}
 }
-
 function filtrarCorridas(f){carregarCorridas(f);}
 
 function renderCorridaCard(c){
-  const statusMap={aguardando:{cls:'chip-aguardando',txt:'AGUARDANDO'},aceita:{cls:'chip-aceita',txt:'ACEITA'},a_caminho:{cls:'chip-aceita',txt:'A CAMINHO'},concluida:{cls:'chip-concluida',txt:'CONCLUÍDA'},cancelada_cliente:{cls:'chip-cancelada',txt:'CANCELADA'},cancelada_motorista:{cls:'chip-cancelada',txt:'CANCELADA MOT.'}};
-  const s=statusMap[c.status]||{cls:'chip-cancelada',txt:c.status};
+  const statusMap={aguardando:{cls:"chip-aguardando",txt:"AGUARDANDO"},aceita:{cls:"chip-aceita",txt:"ACEITA"},a_caminho:{cls:"chip-aceita",txt:"A CAMINHO"},motorista_chegou:{cls:"chip-aceita",txt:"MOTORISTA CHEGOU"},concluida:{cls:"chip-concluida",txt:"CONCLUÍDA"},cancelada_cliente:{cls:"chip-cancelada",txt:"CANCELADA"},cancelada_motorista:{cls:"chip-cancelada",txt:"CANCELADA MOT."}};
+  const s=statusMap[c.status]||{cls:"chip-cancelada",txt:c.status};
   return`<div class="corrida-card">
     <div class="corrida-card-top"><div class="corrida-status-chip ${s.cls}">${s.txt}</div><div class="corrida-card-id">${formatarData(c.criadoEm)}</div></div>
     <div class="corrida-card-rota">
-      <div class="corrida-rota-row"><span>🟡 Origem</span>${c.origem||'—'}</div>
-      <div class="corrida-rota-row"><span>🔴 Destino</span>${c.destino||'—'}</div>
-      ${c.obs?`<div class="corrida-rota-row"><span>📝 Obs.</span>${c.obs}</div>`:''}
+      <div class="corrida-rota-row"><span>🟡 Origem</span>${c.origem||"—"}</div>
+      <div class="corrida-rota-row"><span>🔴 Destino</span>${c.destino||"—"}</div>
+      ${c.obs?`<div class="corrida-rota-row"><span>📝 Obs.</span>${c.obs}</div>`:""}
+      ${c.formaPgto?`<div class="corrida-rota-row"><span>💰 Pagto</span>${c.formaPgto}</div>`:""}
     </div>
     <div class="corrida-card-bottom">
-      <div class="corrida-pessoas">👤 ${c.clienteNome||'Anônimo'} · 🏍️ ${c.motorista?c.motorista.nome:'Sem motorista'}</div>
-      <div class="corrida-valor-chip">R$ ${parseFloat(c.valor||0).toFixed(2).replace('.',',')}</div>
+      <div class="corrida-pessoas">👤 ${c.clienteNome||"Anônimo"} · 🏍️ ${c.motorista?c.motorista.nome:"Sem motorista"}</div>
+      <div class="corrida-valor-chip">R$ ${parseFloat(c.valor||0).toFixed(2).replace(".",",")}</div>
     </div>
   </div>`;
 }
 
 // ── MOTORISTAS ──
 async function carregarMotoristas(){
-  const el=document.getElementById('lista-motoristas');
-  el.innerHTML='<div class="vazio">Carregando...</div>';
+  const el=document.getElementById("lista-motoristas");
+  el.innerHTML="<div class='vazio'>Carregando...</div>";
   try{
-    const snap=await db.collection('cj_motoristas').orderBy('criadoEm','desc').get();
-    if(snap.empty){el.innerHTML='<div class="vazio">Nenhum motorista cadastrado</div>';return;}
+    const snap=await db.collection("cj_motoristas").orderBy("criadoEm","desc").get();
+    if(snap.empty){el.innerHTML="<div class='vazio'>Nenhum motorista cadastrado</div>";return;}
     el.innerHTML=snap.docs.map(d=>{
       const m=d.data();
-      const veiculos={'moto':'🏍️','carro':'🚗','van':'🚐'};
-      const vei=veiculos[m.veiculo]||'🏍️';
+      const veiculos={moto:"🏍️",carro:"🚗",van:"🚐"};
+      const vei=veiculos[m.veiculo]||"🏍️";
       const bloqueado=m.bloqueado||false;
-      return`<div class="motorista-card">
-        <div class="motorista-card-top">
-          <div class="mot-foto">${m.foto?`<img src="${m.foto}"/>`:'👤'}</div>
-          <div class="mot-info">
-            <div class="mot-nome">${m.nome||'—'}</div>
-            <div class="mot-fone">${m.fone||'—'} · ${vei} ${m.placa||'—'}</div>
+      const nivel=nivelPorCorridas(m.totalCorridas||0);
+      return`<div class="motorista-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--roxo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${m.foto?`<img src="${m.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"👤"}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;">${m.nome||"—"} ${nivel}</div>
+            <div style="font-size:12px;color:var(--muted);">${m.fone||"—"} · ${vei} ${m.placa||"—"}</div>
+            <div style="font-size:11px;color:var(--muted);">CPF: ${m.cpf||"não informado"}</div>
           </div>
-          <div class="mot-online ${m.online?'on':'off'}">${m.online?'● Online':'○ Offline'}</div>
+          <div class="mot-online ${m.online?"on":"off"}" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">${m.online?"● Online":"○ Offline"}</div>
         </div>
-        <div class="mot-stats">
-          <div class="mot-stat"><div class="mot-stat-val" style="color:var(--warn)">R$ ${parseFloat(m.creditos||0).toFixed(0)}</div><div class="mot-stat-label">Créditos</div></div>
-          <div class="mot-stat"><div class="mot-stat-val">${m.totalCorridas||0}</div><div class="mot-stat-label">Corridas</div></div>
-          <div class="mot-stat"><div class="mot-stat-val" style="color:var(--warn)">${m.avaliacao?'⭐ '+parseFloat(m.avaliacao).toFixed(1):'Novo'}</div><div class="mot-stat-label">Avaliação</div></div>
+        ${m.explicacaoAvaliacao?`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text);"><b style="color:var(--warn);">Explicação enviada:</b> ${m.explicacaoAvaliacao}</div>`:""}
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:var(--warn);">R$ ${parseFloat(m.creditos||0).toFixed(0)}</div><div style="font-size:10px;color:var(--muted);">Créditos</div></div>
+          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:#fff;">${m.totalCorridas||0}</div><div style="font-size:10px;color:var(--muted);">Corridas</div></div>
+          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:var(--warn);">${m.avaliacao?"⭐ "+parseFloat(m.avaliacao).toFixed(1):"Novo"}</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
         </div>
-        <div class="mot-acoes">
-          <button class="btn-credito" onclick="abrirCredito('${d.id}','${m.nome}',${m.creditos||0})">💳 Créditos</button>
+        <div style="display:flex;gap:8px;">
+          <button style="flex:1;padding:10px;border-radius:12px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="abrirCredito('${d.id}','${m.nome}',${m.creditos||0})">💳 Créditos</button>
+          <button style="flex:1;padding:10px;border-radius:12px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--ciano);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="abrirResetSenha('cj_motoristas','${d.id}','${m.nome}')">🔑 Resetar senha</button>
           ${bloqueado
-            ?`<button class="btn-desbloquear" onclick="bloquearMotorista('${d.id}',false)">✓ Desbloquear</button>`
-            :`<button class="btn-bloquear" onclick="bloquearMotorista('${d.id}',true)">✕ Bloquear</button>`
+            ?`<button style="flex:1;padding:10px;border-radius:12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:var(--success);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="bloquearMotorista('${d.id}',false)">✓ Desbloquear</button>`
+            :`<button style="flex:1;padding:10px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="bloquearMotorista('${d.id}',true)">✕ Bloquear</button>`
           }
         </div>
       </div>`;
-    }).join('');
-  }catch(e){el.innerHTML='<div class="vazio">Erro ao carregar</div>';}
+    }).join("");
+  }catch(e){el.innerHTML="<div class='vazio'>Erro ao carregar</div>";}
+}
+
+function nivelPorCorridas(tc){
+  if(tc>=50)return"💎";
+  if(tc>=20)return"🥇";
+  if(tc>=5)return"🥈";
+  return"🥉";
 }
 
 async function bloquearMotorista(id,bloquear){
   mostrarLoading(true);
   try{
     const dados={bloqueado:bloquear};
-    if(bloquear) dados.online=false;
-    await db.collection('cj_motoristas').doc(id).update(dados);
+    if(bloquear)dados.online=false;
+    await db.collection("cj_motoristas").doc(id).update(dados);
     mostrarLoading(false);
-    toast(bloquear?'Motorista bloqueado!':'Motorista desbloqueado!');
+    toast(bloquear?"Motorista bloqueado!":"Motorista desbloqueado!");
     carregarMotoristas();
-  }catch(e){mostrarLoading(false);toast('Erro: '+e.message);}
-}
-
-// ── CRÉDITOS ──
-function abrirCredito(id,nome,creditoAtual){
-  motoristaSelecionado={id,nome,creditoAtual};
-  creditoValor=10;
-  document.getElementById('credito-titulo').textContent='Créditos — '+nome;
-  document.getElementById('credito-sub').textContent='Saldo atual: R$ '+parseFloat(creditoAtual).toFixed(2).replace('.',',');
-  document.getElementById('credito-custom').value='';
-  document.querySelectorAll('.credito-opcao').forEach(o=>o.classList.remove('sel'));
-  document.querySelectorAll('.credito-opcao')[0].classList.add('sel');
-  document.getElementById('modal-credito').classList.add('show');
-}
-
-function selecionarCredito(val,el){
-  creditoValor=val;
-  document.querySelectorAll('.credito-opcao').forEach(o=>o.classList.remove('sel'));
-  el.classList.add('sel');
-  document.getElementById('credito-custom').value='';
-}
-
-function creditoCustom(val){
-  creditoValor=parseFloat(val)||0;
-  document.querySelectorAll('.credito-opcao').forEach(o=>o.classList.remove('sel'));
-}
-
-function fecharCredito(){document.getElementById('modal-credito').classList.remove('show');motoristaSelecionado=null;}
-
-async function confirmarCredito(){
-  if(!motoristaSelecionado||creditoValor<=0){toast('Selecione um valor');return;}
-  mostrarLoading(true);
-  try{
-    const novoCredito=(motoristaSelecionado.creditoAtual||0)+creditoValor;
-    await db.collection('cj_motoristas').doc(motoristaSelecionado.id).update({creditos:novoCredito});
-    mostrarLoading(false);
-    fecharCredito();
-    toast('R$ '+creditoValor.toFixed(2).replace('.',',')+' adicionado com sucesso!');
-    carregarMotoristas();
-  }catch(e){mostrarLoading(false);toast('Erro: '+e.message);}
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
 }
 
 // ── PASSAGEIROS ──
 async function carregarPassageiros(){
-  const el=document.getElementById('lista-passageiros');
-  el.innerHTML='<div class="vazio">Carregando...</div>';
+  const el=document.getElementById("lista-passageiros");
+  el.innerHTML="<div class='vazio'>Carregando...</div>";
   try{
-    const snap=await db.collection('cj_passageiros').orderBy('criadoEm','desc').get();
-    if(snap.empty){el.innerHTML='<div class="vazio">Nenhum passageiro cadastrado</div>';return;}
+    const snap=await db.collection("cj_passageiros").orderBy("criadoEm","desc").get();
+    if(snap.empty){el.innerHTML="<div class='vazio'>Nenhum passageiro cadastrado</div>";return;}
     el.innerHTML=snap.docs.map(d=>{
       const p=d.data();
-      return`<div class="passageiro-card">
-        <div class="pass-card-top">
-          <div class="pass-foto">${p.foto?`<img src="${p.foto}"/>`:'👤'}</div>
-          <div class="pass-info">
-            <div class="pass-nome">${p.nome||'Anônimo'}</div>
-            <div class="pass-fone">${p.fone||'Sem cadastro'}</div>
+      const idade=calcIdadePainel(p.dataNascimento);
+      return`<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--card2);border:2px solid var(--indigo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"👤"}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;">${p.nome||"Anônimo"}</div>
+            <div style="font-size:12px;color:var(--muted);">${p.fone||"Sem cadastro"} ${idade?"· "+idade+" anos":""}</div>
+            <div style="font-size:11px;color:var(--muted);">CPF: ${p.cpf||"não informado"}</div>
           </div>
-          <div class="pass-tipo">${p.tipo==='anonimo'?'Sem conta':'Cadastrado'}</div>
+          <div style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(79,70,229,0.12);color:var(--ciano);border:1px solid rgba(79,70,229,0.2);flex-shrink:0;">${p.tipo==="anonimo"?"Sem conta":"Cadastrado"}</div>
         </div>
-        <div class="pass-stats-row">
-          <div class="pass-stat"><div class="pass-stat-val">${p.totalCorridas||0}</div><div class="pass-stat-label">Corridas</div></div>
-          <div class="pass-stat"><div class="pass-stat-val">${formatarDataSimples(p.criadoEm)}</div><div class="pass-stat-label">Cadastro</div></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">${p.totalCorridas||0}</div><div style="font-size:10px;color:var(--muted);">Corridas</div></div>
+          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:var(--warn);">${p.avaliacao?"⭐ "+parseFloat(p.avaliacao).toFixed(1):"5.0"}</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
+          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">${formatarDataSimples(p.criadoEm)}</div><div style="font-size:10px;color:var(--muted);">Cadastro</div></div>
         </div>
+        ${p.tipo!=="anonimo"?`<button style="width:100%;padding:9px;border-radius:11px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--ciano);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="abrirResetSenha('cj_passageiros','${d.id}','${p.nome}')">🔑 Resetar senha</button>`:""}
       </div>`;
-    }).join('');
-  }catch(e){el.innerHTML='<div class="vazio">Erro ao carregar</div>';}
+    }).join("");
+  }catch(e){el.innerHTML="<div class='vazio'>Erro ao carregar</div>";}
+}
+function calcIdadePainel(dataNasc){
+  if(!dataNasc)return null;
+  const hoje=new Date(),nasc=new Date(dataNasc+"T00:00:00");
+  let idade=hoje.getFullYear()-nasc.getFullYear();
+  const m=hoje.getMonth()-nasc.getMonth();
+  if(m<0||(m===0&&hoje.getDate()<nasc.getDate()))idade--;
+  return idade;
+}
+</script>
+<script>
+// ── CRÉDITOS (com teto configurável) ──
+let motoristaSelecionado=null,creditoValor=10;
+function abrirCredito(id,nome,creditoAtual){
+  motoristaSelecionado={id,nome,creditoAtual};
+  creditoValor=10;
+  const modal=document.getElementById("modal-credito");
+  if(!modal){criarModalCredito();}
+  document.getElementById("credito-titulo").textContent="Créditos — "+nome;
+  const teto=configs.tetoCredito||0;
+  document.getElementById("credito-sub").textContent="Saldo atual: R$ "+parseFloat(creditoAtual).toFixed(2).replace(".",",")+(teto>0?" · Teto: R$ "+teto:" · Sem teto");
+  document.getElementById("credito-custom").value="";
+  document.querySelectorAll(".credito-opcao").forEach(o=>o.classList.remove("sel"));
+  document.querySelectorAll(".credito-opcao")[0]?.classList.add("sel");
+  document.getElementById("modal-credito").classList.add("show");
+}
+function selecionarCredito(val,el){
+  creditoValor=val;
+  document.querySelectorAll(".credito-opcao").forEach(o=>o.classList.remove("sel"));
+  el.classList.add("sel");
+  document.getElementById("credito-custom").value="";
+}
+function creditoCustom(val){creditoValor=parseFloat(val)||0;document.querySelectorAll(".credito-opcao").forEach(o=>o.classList.remove("sel"));}
+function fecharCredito(){document.getElementById("modal-credito").classList.remove("show");motoristaSelecionado=null;}
+async function confirmarCredito(){
+  if(!motoristaSelecionado||creditoValor<=0){toast("Selecione um valor");return;}
+  const teto=configs.tetoCredito||0;
+  let novoCredito=(motoristaSelecionado.creditoAtual||0)+creditoValor;
+  if(teto>0&&novoCredito>teto){
+    toast(`Saldo máximo é R$ ${teto}. Ajuste o teto em Configurações se quiser permitir mais.`);
+    novoCredito=teto;
+  }
+  mostrarLoading(true);
+  try{
+    await db.collection("cj_motoristas").doc(motoristaSelecionado.id).update({creditos:novoCredito});
+    try{await db.collection("cj_transacoes_creditos").add({motoristaId:motoristaSelecionado.id,valor:creditoValor,data:new Date()});}catch(e){}
+    mostrarLoading(false);
+    fecharCredito();
+    toast("R$ "+creditoValor.toFixed(2).replace(".",",")+" adicionado com sucesso!");
+    carregarMotoristas();
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
+}
+function criarModalCredito(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-credito" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+    <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:24px;padding-bottom:max(40px,calc(var(--sab)+24px));width:100%;animation:slideUp 0.3s ease;">
+      <div id="credito-titulo" style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;">Adicionar créditos</div>
+      <div id="credito-sub" style="font-size:13px;color:var(--muted);margin-bottom:20px;">Selecione o valor a adicionar</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="credito-opcao sel" onclick="selecionarCredito(10,this)" style="padding:14px;background:var(--card2);border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;"><div style="font-size:18px;font-weight:800;color:#fff;">R$10</div><div style="font-size:11px;color:var(--muted);">Básico</div></div>
+        <div class="credito-opcao" onclick="selecionarCredito(25,this)" style="padding:14px;background:var(--card2);border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;"><div style="font-size:18px;font-weight:800;color:#fff;">R$25</div><div style="font-size:11px;color:var(--muted);">Médio</div></div>
+        <div class="credito-opcao" onclick="selecionarCredito(50,this)" style="padding:14px;background:var(--card2);border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;"><div style="font-size:18px;font-weight:800;color:#fff;">R$50</div><div style="font-size:11px;color:var(--muted);">Completo</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div style="font-size:13px;color:var(--muted);flex-shrink:0;">Outro valor:</div>
+        <input id="credito-custom" type="number" placeholder="R$ 0,00" min="0" step="5" oninput="creditoCustom(this.value)" style="flex:1;padding:12px 16px;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:16px;font-family:inherit;outline:none;"/>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="fecharCredito()" style="flex:1;padding:15px;border-radius:16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit;">Cancelar</button>
+        <button onclick="confirmarCredito()" style="flex:2;padding:15px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">✓ Adicionar crédito</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
 }
 
-// ── RECEITA ──
+// ── RESET DE SENHA ──
+let resetAlvo=null;
+function abrirResetSenha(colecao,id,nome){
+  resetAlvo={colecao,id,nome};
+  if(!document.getElementById("modal-reset"))criarModalReset();
+  document.getElementById("reset-titulo").textContent="Resetar senha — "+nome;
+  document.getElementById("reset-nova-senha").value="";
+  document.getElementById("modal-reset").classList.add("show");
+}
+function fecharReset(){document.getElementById("modal-reset").classList.remove("show");resetAlvo=null;}
+async function confirmarReset(){
+  const novaSenha=document.getElementById("reset-nova-senha").value.trim();
+  if(!novaSenha||novaSenha.length<4){toast("Digite uma senha de pelo menos 4 dígitos");return;}
+  if(!resetAlvo)return;
+  mostrarLoading(true);
+  try{
+    const hash=hashSenhaPainel(novaSenha);
+    await db.collection(resetAlvo.colecao).doc(resetAlvo.id).update({senhaHash:hash});
+    mostrarLoading(false);
+    fecharReset();
+    toast("Senha redefinida! Informe a nova senha para "+resetAlvo.nome+".");
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
+}
+function hashSenhaPainel(s){
+  let h=5381;const str=String(s);
+  for(let i=0;i<str.length;i++){h=((h<<5)+h+str.charCodeAt(i))>>>0;}
+  let h2=52711;for(let i=str.length-1;i>=0;i--){h2=((h2<<5)+h2+str.charCodeAt(i))>>>0;}
+  return"h"+h.toString(36)+h2.toString(36);
+}
+function criarModalReset(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-reset" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+    <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:24px;padding-bottom:max(40px,calc(var(--sab)+24px));width:100%;animation:slideUp 0.3s ease;">
+      <div id="reset-titulo" style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;">Resetar senha</div>
+      <input id="reset-nova-senha" type="text" placeholder="Nova senha (mín. 4 dígitos)" style="width:100%;padding:14px 16px;background:var(--card2);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;margin-bottom:16px;"/>
+      <div style="display:flex;gap:10px;">
+        <button onclick="fecharReset()" style="flex:1;padding:15px;border-radius:16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit;">Cancelar</button>
+        <button onclick="confirmarReset()" style="flex:2;padding:15px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">🔑 Redefinir senha</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+</script>
+<script>
+// ── MAPA DE FAIXAS DE PREÇO POR RAIO ──
+let mapaRaios=null,circulosRaios=[],faixasPreco=[],faixaAtivaIdx=null;
+const CORES_FAIXA=["#8b5cf6","#38bdf8","#22c55e","#f59e0b","#ef4444","#ec4899","#06b6d4"];
+const CENTRO_PADRAO=[-22.655,-47.059]; // Holambra
+
+function faixasPadrao(){
+  return[
+    {ate:2,precoPassageiro:8,creditoMotorista:1},
+    {ate:5,precoPassageiro:12,creditoMotorista:2},
+    {ate:10,precoPassageiro:18,creditoMotorista:2},
+    {ate:20,precoPassageiro:25,creditoMotorista:3},
+    {ate:35,precoPassageiro:35,creditoMotorista:4},
+  ];
+}
+
+async function carregarFaixasPreco(){
+  try{
+    const snap=await db.collection("cj_config").doc("geral").get();
+    if(snap.exists&&snap.data().faixasPreco&&snap.data().faixasPreco.length>0){
+      faixasPreco=snap.data().faixasPreco;
+    }else{
+      faixasPreco=faixasPadrao();
+    }
+  }catch(e){faixasPreco=faixasPadrao();}
+  iniciarMapaRaios();
+  renderFaixasLista();
+}
+
+function iniciarMapaRaios(){
+  if(!mapaRaios){
+    mapaRaios=L.map("mapa-raios",{zoomControl:true,attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaRaios);
+    L.marker(CENTRO_PADRAO,{icon:L.divIcon({html:"📍",className:"",iconSize:[24,24]})}).addTo(mapaRaios);
+    mapaRaios.setView(CENTRO_PADRAO,11);
+  }
+  setTimeout(()=>mapaRaios.invalidateSize(),200);
+  desenharCirculos();
+}
+
+function desenharCirculos(){
+  circulosRaios.forEach(c=>mapaRaios.removeLayer(c));
+  circulosRaios=[];
+  // Desenhar do maior pro menor pra não tapar os menores
+  const ordenadas=[...faixasPreco].map((f,i)=>({...f,idx:i})).sort((a,b)=>b.ate-a.ate);
+  ordenadas.forEach(f=>{
+    const cor=CORES_FAIXA[f.idx%CORES_FAIXA.length];
+    const circ=L.circle(CENTRO_PADRAO,{
+      radius:f.ate*1000,
+      color:cor,
+      fillColor:cor,
+      fillOpacity:f.idx===faixaAtivaIdx?0.28:0.12,
+      weight:f.idx===faixaAtivaIdx?3:1.5,
+    }).addTo(mapaRaios);
+    circulosRaios.push(circ);
+  });
+}
+
+function renderFaixasLista(){
+  const el=document.getElementById("lista-faixas-preco");
+  if(!el)return;
+  // Ordenar por "ate" crescente pra exibição lógica
+  el.innerHTML=faixasPreco.map((f,i)=>{
+    const cor=CORES_FAIXA[i%CORES_FAIXA.length];
+    return`<div class="raio-faixa-item" onclick="ativarFaixaNoMapa(${i})" style="cursor:pointer;${faixaAtivaIdx===i?'border-color:'+cor+';':''}">
+      <div class="raio-faixa-top">
+        <div class="raio-faixa-cor" style="background:${cor};"></div>
+        <div class="raio-faixa-titulo">Até ${f.ate} km</div>
+        <button class="raio-faixa-remover" onclick="event.stopPropagation();removerFaixaPreco(${i})">✕</button>
+      </div>
+      <div class="raio-faixa-campos">
+        <div class="raio-campo"><div class="raio-campo-label">Raio (km)</div><input class="raio-campo-input" type="number" value="${f.ate}" min="0.5" step="0.5" onclick="event.stopPropagation()" oninput="atualizarFaixaCampo(${i},'ate',this.value)"/></div>
+        <div class="raio-campo"><div class="raio-campo-label">Passageiro R$</div><input class="raio-campo-input" type="number" value="${f.precoPassageiro}" min="0" step="0.5" onclick="event.stopPropagation()" oninput="atualizarFaixaCampo(${i},'precoPassageiro',this.value)"/></div>
+        <div class="raio-campo"><div class="raio-campo-label">Motorista créd.</div><input class="raio-campo-input" type="number" value="${f.creditoMotorista}" min="0" step="1" onclick="event.stopPropagation()" oninput="atualizarFaixaCampo(${i},'creditoMotorista',this.value)"/></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function ativarFaixaNoMapa(idx){
+  faixaAtivaIdx=idx;
+  const f=faixasPreco[idx];
+  document.getElementById("mapa-raio-legenda").textContent=`Faixa ${idx+1}: raio de ${f.ate} km`;
+  desenharCirculos();
+  renderFaixasLista();
+  if(mapaRaios)mapaRaios.setView(CENTRO_PADRAO,Math.max(9,13-Math.floor(f.ate/6)));
+}
+
+function atualizarFaixaCampo(idx,campo,valor){
+  const v=parseFloat(valor);
+  if(isNaN(v))return;
+  faixasPreco[idx][campo]=v;
+  if(campo==="ate"){desenharCirculos();}
+}
+
+function adicionarFaixaPreco(){
+  const maiorAte=faixasPreco.length>0?Math.max(...faixasPreco.map(f=>f.ate)):0;
+  faixasPreco.push({ate:maiorAte+5,precoPassageiro:10,creditoMotorista:1});
+  renderFaixasLista();
+  desenharCirculos();
+}
+function removerFaixaPreco(idx){
+  faixasPreco.splice(idx,1);
+  if(faixaAtivaIdx===idx)faixaAtivaIdx=null;
+  renderFaixasLista();
+  desenharCirculos();
+}
+
+async function salvarFaixasPreco(){
+  // Ordenar por "ate" crescente antes de salvar (importante pra lógica de cálculo nos apps)
+  faixasPreco.sort((a,b)=>a.ate-b.ate);
+  mostrarLoading(true);
+  try{
+    await db.collection("cj_config").doc("geral").set({faixasPreco},{merge:true});
+    mostrarLoading(false);
+    toast("Tabela de preços por raio salva! ✓");
+    renderFaixasLista();
+    desenharCirculos();
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
+}
+</script>
+<script>
+// ── AVALIAÇÕES ──
+async function carregarAvaliacoes(){
+  const elAlertas=document.getElementById("lista-alertas-aval");
+  const elLista=document.getElementById("lista-avaliacoes");
+  elAlertas.innerHTML="<div class='vazio'>Carregando...</div>";
+  elLista.innerHTML="<div class='vazio'>Carregando...</div>";
+  try{
+    // Motoristas com avaliação baixa e explicação pendente
+    const snapM=await db.collection("cj_motoristas").where("avaliacao","<",3.5).get();
+    if(snapM.empty){elAlertas.innerHTML="<div class='vazio'>Nenhum alerta no momento</div>";}
+    else{
+      elAlertas.innerHTML=snapM.docs.map(d=>{
+        const m=d.data();
+        return`<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:13px;">
+          <div style="font-size:13px;font-weight:800;color:#ef4444;margin-bottom:4px;">⚠️ ${m.nome} — nota ${parseFloat(m.avaliacao||0).toFixed(1)}</div>
+          ${m.explicacaoAvaliacao?`<div style="font-size:12px;color:var(--text);margin-top:6px;"><b>Explicação do motorista:</b> ${m.explicacaoAvaliacao}</div>`:`<div style="font-size:12px;color:var(--muted);">Nenhuma explicação enviada ainda.</div>`}
+        </div>`;
+      }).join("");
+    }
+
+    // Últimas corridas concluídas com avaliação/comentário
+    const snapC=await db.collection("cj_corridas").where("status","==","concluida").orderBy("criadoEm","desc").limit(20).get();
+    const comAval=snapC.docs.filter(d=>d.data().avaliacaoPassageiro||d.data().avaliacaoMotorista);
+    if(comAval.length===0){elLista.innerHTML="<div class='vazio'>Nenhuma avaliação ainda</div>";}
+    else{
+      elLista.innerHTML=comAval.map(d=>{
+        const c=d.data();
+        return`<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${formatarData(c.criadoEm)}</div>
+          ${c.avaliacaoPassageiro?`<div style="font-size:13px;color:var(--text);margin-bottom:4px;">👤 Passageiro avaliou motorista: ${"⭐".repeat(c.avaliacaoPassageiro)} ${c.comentarioPassageiro?"— \""+c.comentarioPassageiro+"\"":""}</div>`:""}
+          ${c.avaliacaoMotorista?`<div style="font-size:13px;color:var(--text);">🏍️ Motorista avaliou passageiro: ${"⭐".repeat(c.avaliacaoMotorista)} ${c.comentarioMotorista?"— \""+c.comentarioMotorista+"\"":""}</div>`:""}
+          <button style="margin-top:8px;padding:6px 12px;border-radius:9px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="excluirAvaliacao('${d.id}')">🗑️ Excluir avaliação (injusta)</button>
+        </div>`;
+      }).join("");
+    }
+  }catch(e){elAlertas.innerHTML="<div class='vazio'>Erro ao carregar</div>";elLista.innerHTML="";}
+}
+
+async function excluirAvaliacao(corridaId){
+  mostrarLoading(true);
+  try{
+    await db.collection("cj_corridas").doc(corridaId).update({
+      avaliacaoPassageiro:firebase.firestore.FieldValue.delete(),
+      comentarioPassageiro:firebase.firestore.FieldValue.delete(),
+      avaliacaoMotorista:firebase.firestore.FieldValue.delete(),
+      comentarioMotorista:firebase.firestore.FieldValue.delete()
+    });
+    mostrarLoading(false);
+    toast("Avaliação removida.");
+    carregarAvaliacoes();
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
+}
+
+// ── RECEITA (baseada em créditos vendidos) ──
 async function carregarReceita(){
   try{
-    const snap=await db.collection('cj_corridas').where('status','==','concluida').get();
     const agora=new Date();
     const hoje=new Date(agora);hoje.setHours(0,0,0,0);
     const semana=new Date(agora);semana.setDate(semana.getDate()-7);
     const mes=new Date(agora);mes.setDate(1);mes.setHours(0,0,0,0);
 
-    let total=0,rHoje=0,rSemana=0,rMes=0,totalAval=0,numAval=0;
-    snap.docs.forEach(d=>{
-      const c=d.data();
-      const comissao=(c.valor||0)*0; // só comissão fixa
-      const comissaoFixa=configs.comissao||1.50;
-      total+=comissaoFixa;
-      const dt=c.criadoEm?c.criadoEm.toDate():new Date(0);
-      if(dt>=hoje) rHoje+=comissaoFixa;
-      if(dt>=semana) rSemana+=comissaoFixa;
-      if(dt>=mes) rMes+=comissaoFixa;
-      if(c.avaliacaoPassageiro){totalAval+=c.avaliacaoPassageiro;numAval++;}
-    });
+    let total=0,rHoje=0,rSemana=0,rMes=0;
+    try{
+      const snapT=await db.collection("cj_transacoes_creditos").get();
+      snapT.docs.forEach(d=>{
+        const t=d.data();
+        const v=t.valor||0;
+        const dt=t.data&&t.data.toDate?t.data.toDate():(t.data?new Date(t.data):new Date(0));
+        total+=v;
+        if(dt>=hoje)rHoje+=v;
+        if(dt>=semana)rSemana+=v;
+        if(dt>=mes)rMes+=v;
+      });
+    }catch(e){}
 
-    document.getElementById('rec-total').textContent='R$ '+total.toFixed(2).replace('.',',');
-    document.getElementById('rec-hoje').textContent='R$ '+rHoje.toFixed(2).replace('.',',');
-    document.getElementById('rec-semana').textContent='R$ '+rSemana.toFixed(2).replace('.',',');
-    document.getElementById('rec-mes').textContent='R$ '+rMes.toFixed(2).replace('.',',');
-    document.getElementById('rec-total-corridas').textContent=snap.size;
-    document.getElementById('rec-aval-media').textContent=numAval>0?(totalAval/numAval).toFixed(1):'—';
+    document.getElementById("rec-total").textContent="R$ "+total.toFixed(2).replace(".",",");
+    document.getElementById("rec-hoje").textContent="R$ "+rHoje.toFixed(2).replace(".",",");
+    document.getElementById("rec-semana").textContent="R$ "+rSemana.toFixed(2).replace(".",",");
+    document.getElementById("rec-mes").textContent="R$ "+rMes.toFixed(2).replace(".",",");
 
-    const snapM=await db.collection('cj_motoristas').get();
-    document.getElementById('rec-total-motoristas').textContent=snapM.size;
-    const snapP=await db.collection('cj_passageiros').get();
-    document.getElementById('rec-total-passageiros').textContent=snapP.size;
+    const snapC=await db.collection("cj_corridas").where("status","==","concluida").get();
+    document.getElementById("rec-total-corridas").textContent=snapC.size;
+    let totalAval=0,numAval=0;
+    snapC.docs.forEach(d=>{const c=d.data();if(c.avaliacaoPassageiro){totalAval+=c.avaliacaoPassageiro;numAval++;}});
+    document.getElementById("rec-aval-media").textContent=numAval>0?(totalAval/numAval).toFixed(1):"—";
+
+    const snapM=await db.collection("cj_motoristas").get();
+    document.getElementById("rec-total-motoristas").textContent=snapM.size;
+    const snapP=await db.collection("cj_passageiros").get();
+    document.getElementById("rec-total-passageiros").textContent=snapP.size;
   }catch(e){console.error(e);}
 }
 
 // ── CONFIG ──
 async function carregarConfigs(){
   try{
-    const snap=await db.collection('cj_config').doc('geral').get();
+    const snap=await db.collection("cj_config").doc("geral").get();
     if(snap.exists){
       const d=snap.data();
       configs={...configs,...d};
-      document.getElementById('toggle-creditos').classList.toggle('on',!!configs.creditos);
-      document.getElementById('toggle-semconta').classList.toggle('on',configs.semconta!==false);
-      document.getElementById('toggle-novomotorista').classList.toggle('on',configs.novomotorista!==false);
-      if(configs.comissao) document.getElementById('cfg-comissao').value=configs.comissao;
-      if(configs.precos){
-        document.getElementById('preco-2').value=configs.precos[2]||8;
-        document.getElementById('preco-5').value=configs.precos[5]||12;
-        document.getElementById('preco-10').value=configs.precos[10]||18;
-        document.getElementById('preco-20').value=configs.precos[20]||25;
-        document.getElementById('preco-mais').value=configs.precos[99]||35;
-      }
-      if(configs.pin) pinAtual=configs.pin;
+      document.getElementById("toggle-semconta").classList.toggle("on",configs.semconta!==false);
+      document.getElementById("toggle-novomotorista").classList.toggle("on",configs.novomotorista!==false);
+      document.getElementById("cfg-teto-credito").value=configs.tetoCredito!==undefined?configs.tetoCredito:200;
+      document.getElementById("cfg-whatsapp").value=configs.whatsappAdmin||"5519982480386";
+      if(configs.pin)pinAtual=configs.pin;
     }
   }catch(e){}
 }
-
 function toggleConfig(key){
-  const el=document.getElementById('toggle-'+key);
-  const novoVal=!el.classList.contains('on');
-  el.classList.toggle('on',novoVal);
+  const el=document.getElementById("toggle-"+key);
+  const novoVal=!el.classList.contains("on");
+  el.classList.toggle("on",novoVal);
   configs[key]=novoVal;
+  db.collection("cj_config").doc("geral").set({[key]:novoVal},{merge:true}).catch(()=>{});
 }
-
-async function salvarConfig(){
+async function salvarConfigCreditos(){
   mostrarLoading(true);
   try{
-    configs.comissao=parseFloat(document.getElementById('cfg-comissao').value)||1.50;
-    await db.collection('cj_config').doc('geral').set(configs,{merge:true});
-    mostrarLoading(false);toast('Configurações salvas!');
-  }catch(e){mostrarLoading(false);toast('Erro: '+e.message);}
+    const teto=parseFloat(document.getElementById("cfg-teto-credito").value)||0;
+    configs.tetoCredito=teto;
+    await db.collection("cj_config").doc("geral").set({tetoCredito:teto},{merge:true});
+    mostrarLoading(false);toast("Teto de créditos salvo! "+(teto>0?"R$ "+teto:"Sem limite"));
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
 }
-
-async function salvarPrecos(){
+async function salvarConfigWhatsapp(){
   mostrarLoading(true);
   try{
-    const precos={2:parseFloat(document.getElementById('preco-2').value),5:parseFloat(document.getElementById('preco-5').value),10:parseFloat(document.getElementById('preco-10').value),20:parseFloat(document.getElementById('preco-20').value),99:parseFloat(document.getElementById('preco-mais').value)};
-    await db.collection('cj_config').doc('geral').set({precos},{merge:true});
-    mostrarLoading(false);toast('Tabela de preços salva!');
-  }catch(e){mostrarLoading(false);toast('Erro: '+e.message);}
+    const wa=document.getElementById("cfg-whatsapp").value.trim();
+    if(!wa){mostrarLoading(false);toast("Informe um número válido");return;}
+    configs.whatsappAdmin=wa;
+    await db.collection("cj_config").doc("geral").set({whatsappAdmin:wa},{merge:true});
+    mostrarLoading(false);toast("WhatsApp do admin salvo!");
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
 }
-
 async function alterarPin(){
-  const novoPin=document.getElementById('novo-pin').value;
-  if(!novoPin||novoPin.length<4){toast('PIN deve ter ao menos 4 dígitos');return;}
+  const novoPin=document.getElementById("novo-pin").value;
+  if(!novoPin||novoPin.length<4){toast("PIN deve ter ao menos 4 dígitos");return;}
   mostrarLoading(true);
   try{
-    await db.collection('cj_config').doc('geral').set({pin:novoPin},{merge:true});
+    await db.collection("cj_config").doc("geral").set({pin:novoPin},{merge:true});
     pinAtual=novoPin;
-    localStorage.setItem('cj_admin_pin',novoPin);
-    document.getElementById('novo-pin').value='';
-    mostrarLoading(false);toast('PIN alterado com sucesso!');
-  }catch(e){mostrarLoading(false);toast('Erro: '+e.message);}
+    localStorage.setItem("cj_admin_pin",novoPin);
+    document.getElementById("novo-pin").value="";
+    mostrarLoading(false);toast("PIN alterado com sucesso!");
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
 }
-
-// ── UTILS ──
-function formatarData(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
-function formatarDataSimples(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('pt-BR');}
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3500);}
-function mostrarLoading(s){document.getElementById('loading').classList.toggle('show',s);}
 </script>
 </body>
 </html>
