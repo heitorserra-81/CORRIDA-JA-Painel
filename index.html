@@ -65,20 +65,23 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .btn-entrar:active{opacity:0.85;}
 
 /* HEADER */
-.painel-header{padding:20px 18px 14px;padding-top:calc(var(--sat) + 20px);background:linear-gradient(180deg,rgba(30,27,75,0.96) 0%,rgba(15,15,42,0.7) 70%,transparent 100%);position:relative;}
-.painel-header-top{display:flex;align-items:center;gap:10px;position:relative;min-height:48px;}
-.painel-logo-central{width:52px;height:52px;border-radius:14px;object-fit:cover;position:absolute;left:0;right:0;margin:0 auto;box-shadow:0 0 16px rgba(139,92,246,0.5);}
+.painel-header{padding:20px 18px 16px;padding-top:calc(var(--sat) + 20px);background:linear-gradient(180deg,rgba(30,27,75,0.97) 0%,rgba(15,15,42,0.75) 70%,transparent 100%);position:relative;}
+.painel-header-top{display:flex;align-items:center;gap:10px;position:relative;min-height:52px;}
+.painel-admin-info{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.painel-admin-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:2px solid var(--roxo-claro);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 4px 14px rgba(139,92,246,0.35);}
+.painel-saudacao{font-size:11px;color:rgba(255,255,255,0.55);}
 .painel-titulo{font-size:16px;font-weight:900;color:#fff;}
-.painel-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;background:rgba(109,40,217,0.12);border:1px solid rgba(109,40,217,0.3);font-size:10px;font-weight:700;color:var(--roxo-claro);letter-spacing:0.4px;}
+.painel-logo-central{width:56px;height:56px;border-radius:15px;object-fit:cover;position:absolute;left:0;right:0;margin:0 auto;box-shadow:0 6px 20px rgba(139,92,246,0.5);}
+.painel-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);font-size:10px;font-weight:700;color:var(--success);letter-spacing:0.4px;flex-shrink:0;margin-left:auto;}
 .painel-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:blink 2s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
-.btn-menu-ham{background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:12px;color:var(--roxo-claro);font-size:20px;cursor:pointer;padding:8px 12px;flex-shrink:0;margin-left:auto;position:relative;z-index:1;}
+.btn-menu-ham{background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:13px;color:var(--roxo-claro);font-size:21px;cursor:pointer;padding:9px 13px;flex-shrink:0;position:relative;z-index:1;}
 
 /* TABS */
-.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:1;}
+.tabs{display:flex;gap:8px;background:transparent;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:1;padding:2px 16px 12px;}
 .tabs::-webkit-scrollbar{display:none;}
-.tab{flex-shrink:0;padding:12px 16px;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;white-space:nowrap;}
-.tab.ativo{color:var(--roxo-claro);border-bottom-color:var(--roxo-claro);}
+.tab{flex-shrink:0;padding:9px 16px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border-radius:20px;transition:all 0.2s;}
+.tab.ativo{color:#fff;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border-color:var(--roxo-claro);box-shadow:0 4px 14px rgba(139,92,246,0.35);}
 
 /* CONTEÚDO DAS ABAS */
 .aba{display:none;padding:16px 20px 40px;flex-direction:column;gap:14px;position:relative;z-index:1;}
@@ -86,14 +89,15 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 
 /* CARDS RESUMO */
 .resumo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
-.resumo-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;}
-.resumo-card-icon{font-size:24px;margin-bottom:8px;}
-.resumo-card-val{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px;}
+.resumo-card{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:18px;padding:17px;position:relative;overflow:hidden;}
+.resumo-card::before{content:"";position:absolute;top:-40%;right:-30%;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.15),transparent 70%);}
+.resumo-card-icon{font-size:26px;margin-bottom:9px;position:relative;}
+.resumo-card-val{font-size:27px;font-weight:900;color:#fff;margin-bottom:3px;position:relative;}
 .resumo-card-val.verde{color:var(--success);}
 .resumo-card-val.amarelo{color:var(--warn);}
 .resumo-card-val.vermelho{color:var(--danger);}
 .resumo-card-val.ciano{color:var(--ciano);}
-.resumo-card-label{font-size:12px;color:var(--muted);}
+.resumo-card-label{font-size:11px;color:var(--muted);font-weight:600;position:relative;}
 
 /* LIVE CORRIDAS */
 .live-header{display:flex;align-items:center;justify-content:space-between;}
@@ -208,8 +212,15 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 <div class="screen" id="tela-painel">
   <div class="painel-header">
     <div class="painel-header-top">
-      <div class="painel-badge"><div class="painel-badge-dot"></div>Online</div>
+      <div class="painel-admin-info">
+        <div class="painel-admin-av">👨‍💼</div>
+        <div>
+          <div class="painel-saudacao">Painel de controle</div>
+          <div class="painel-titulo">Administrador</div>
+        </div>
+      </div>
       <img id="logo-header" src="" class="painel-logo-central" alt=""/>
+      <div class="painel-badge"><div class="painel-badge-dot"></div>Live</div>
       <button class="btn-menu-ham" onclick="abrirMenu()">☰</button>
     </div>
   </div>
@@ -255,11 +266,13 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 
   <!-- MOTORISTAS -->
   <div class="aba" id="aba-motoristas">
+    <input class="campo-input" id="busca-motoristas" type="text" placeholder="🔍 Buscar por nome ou WhatsApp..." oninput="filtrarListaMotoristas()" style="margin-bottom:2px;"/>
     <div id="lista-motoristas"><div class="vazio">Carregando...</div></div>
   </div>
 
   <!-- PASSAGEIROS -->
   <div class="aba" id="aba-passageiros">
+    <input class="campo-input" id="busca-passageiros" type="text" placeholder="🔍 Buscar por nome ou WhatsApp..." oninput="filtrarListaPassageiros()" style="margin-bottom:2px;"/>
     <div id="lista-passageiros"><div class="vazio">Carregando...</div></div>
   </div>
 
@@ -567,7 +580,8 @@ function filtrarCorridas(f){carregarCorridas(f);}
 function renderCorridaCard(c){
   const statusMap={aguardando:{cls:"chip-aguardando",txt:"AGUARDANDO"},aceita:{cls:"chip-aceita",txt:"ACEITA"},a_caminho:{cls:"chip-aceita",txt:"A CAMINHO"},motorista_chegou:{cls:"chip-aceita",txt:"MOTORISTA CHEGOU"},concluida:{cls:"chip-concluida",txt:"CONCLUÍDA"},cancelada_cliente:{cls:"chip-cancelada",txt:"CANCELADA"},cancelada_motorista:{cls:"chip-cancelada",txt:"CANCELADA MOT."}};
   const s=statusMap[c.status]||{cls:"chip-cancelada",txt:c.status};
-  return`<div class="corrida-card">
+  const cSafe=encodeURIComponent(JSON.stringify(c));
+  return`<div class="corrida-card" onclick="abrirDetalheCorrida('${cSafe}')" style="cursor:pointer;">
     <div class="corrida-card-top"><div class="corrida-status-chip ${s.cls}">${s.txt}</div><div class="corrida-card-id">${formatarData(c.criadoEm)}</div></div>
     <div class="corrida-card-rota">
       <div class="corrida-rota-row"><span>🟡 Origem</span>${c.origem||"—"}</div>
@@ -583,45 +597,60 @@ function renderCorridaCard(c){
 }
 
 // ── MOTORISTAS ──
+let _todosMotoristas=[];
 async function carregarMotoristas(){
   const el=document.getElementById("lista-motoristas");
   el.innerHTML="<div class='vazio'>Carregando...</div>";
   try{
     const snap=await db.collection("cj_motoristas").orderBy("criadoEm","desc").get();
-    if(snap.empty){el.innerHTML="<div class='vazio'>Nenhum motorista cadastrado</div>";return;}
-    el.innerHTML=snap.docs.map(d=>{
-      const m=d.data();
-      const veiculos={moto:"🏍️",carro:"🚗",van:"🚐"};
-      const vei=veiculos[m.veiculo]||"🏍️";
-      const bloqueado=m.bloqueado||false;
-      const nivel=nivelPorCorridas(m.totalCorridas||0);
-      return`<div class="motorista-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-          <div style="width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--roxo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${m.foto?`<img src="${m.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"👤"}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;">${m.nome||"—"} ${nivel}</div>
-            <div style="font-size:12px;color:var(--muted);">${m.fone||"—"} · ${vei} ${m.placa||"—"}</div>
-            <div style="font-size:11px;color:var(--muted);">CPF: ${m.cpf||"não informado"}</div>
-          </div>
-          <div class="mot-online ${m.online?"on":"off"}" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">${m.online?"● Online":"○ Offline"}</div>
-        </div>
-        ${m.explicacaoAvaliacao?`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text);"><b style="color:var(--warn);">Explicação enviada:</b> ${m.explicacaoAvaliacao}</div>`:""}
-        <div style="display:flex;gap:8px;margin-bottom:12px;">
-          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:var(--warn);">R$ ${parseFloat(m.creditos||0).toFixed(0)}</div><div style="font-size:10px;color:var(--muted);">Créditos</div></div>
-          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:#fff;">${m.totalCorridas||0}</div><div style="font-size:10px;color:var(--muted);">Corridas</div></div>
-          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:var(--warn);">${m.avaliacao?"⭐ "+parseFloat(m.avaliacao).toFixed(1):"Novo"}</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button style="flex:1;padding:10px;border-radius:12px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="abrirCredito('${d.id}','${m.nome}',${m.creditos||0})">💳 Créditos</button>
-          <button style="flex:1;padding:10px;border-radius:12px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--ciano);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="abrirResetSenha('cj_motoristas','${d.id}','${m.nome}')">🔑 Resetar senha</button>
-          ${bloqueado
-            ?`<button style="flex:1;padding:10px;border-radius:12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:var(--success);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="bloquearMotorista('${d.id}',false)">✓ Desbloquear</button>`
-            :`<button style="flex:1;padding:10px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="bloquearMotorista('${d.id}',true)">✕ Bloquear</button>`
-          }
-        </div>
-      </div>`;
-    }).join("");
+    _todosMotoristas=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderListaMotoristas(_todosMotoristas);
   }catch(e){el.innerHTML="<div class='vazio'>Erro ao carregar</div>";}
+}
+function filtrarListaMotoristas(){
+  const termo=(document.getElementById("busca-motoristas").value||"").toLowerCase().trim();
+  if(!termo){renderListaMotoristas(_todosMotoristas);return;}
+  const filtrados=_todosMotoristas.filter(m=>(m.nome||"").toLowerCase().includes(termo)||(m.fone||"").includes(termo));
+  renderListaMotoristas(filtrados);
+}
+function renderListaMotoristas(lista){
+  const el=document.getElementById("lista-motoristas");
+  if(lista.length===0){el.innerHTML="<div class='vazio'>Nenhum motorista encontrado</div>";return;}
+  el.innerHTML=lista.map(m=>{
+    const veiculos={moto:"🏍️",carro:"🚗",van:"🚐"};
+    const vei=veiculos[m.veiculo]||"🏍️";
+    const bloqueado=m.bloqueado||false;
+    const nivel=nivelPorCorridas(m.totalCorridas||0);
+    return`<div class="motorista-card" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--roxo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${m.foto?`<img src="${m.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"👤"}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;">${m.nome||"—"} ${nivel}</div>
+          <div style="font-size:12px;color:var(--muted);">${m.fone||"—"} · ${vei} ${m.placa||"—"}</div>
+          <div style="font-size:11px;color:var(--muted);">CPF: ${m.cpf||"não informado"}</div>
+        </div>
+        <div class="mot-online ${m.online?"on":"off"}" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">${m.online?"● Online":"○ Offline"}</div>
+      </div>
+      ${bloqueado?`<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:7px 10px;margin-bottom:10px;font-size:11px;color:#ef4444;font-weight:700;">🚫 CONTA BLOQUEADA</div>`:""}
+      ${m.explicacaoAvaliacao?`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text);"><b style="color:var(--warn);">Explicação enviada:</b> ${m.explicacaoAvaliacao} <button onclick="resolverAlertaAval('${m.id}')" style="margin-left:6px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:var(--success);border-radius:6px;padding:2px 7px;font-size:10px;cursor:pointer;font-family:inherit;">✓ Resolvido</button></div>`:""}
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;cursor:pointer;" onclick="abrirEditarCredito('cj_motoristas','${m.id}','${m.nome}',${m.creditos||0})"><div style="font-size:15px;font-weight:700;color:var(--warn);">R$ ${parseFloat(m.creditos||0).toFixed(0)} ✏️</div><div style="font-size:10px;color:var(--muted);">Créditos</div></div>
+        <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:#fff;">${m.totalCorridas||0}</div><div style="font-size:10px;color:var(--muted);">Corridas</div></div>
+        <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:15px;font-weight:700;color:var(--warn);">${m.avaliacao?"⭐ "+parseFloat(m.avaliacao).toFixed(1):"Novo"}</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button style="flex:1;padding:10px;border-radius:12px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="abrirCredito('${m.id}','${m.nome}',${m.creditos||0})">💳 Add Créditos</button>
+        <button style="flex:1;padding:10px;border-radius:12px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--ciano);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="abrirResetSenha('cj_motoristas','${m.id}','${m.nome}')">🔑 Senha</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        ${bloqueado
+          ?`<button style="flex:1;padding:9px;border-radius:12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:var(--success);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="bloquearMotorista('${m.id}',false)">✓ Desbloquear</button>`
+          :`<button style="flex:1;padding:9px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="bloquearMotorista('${m.id}',true)">✕ Bloquear</button>`
+        }
+        <button style="flex:1;padding:9px;border-radius:12px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="confirmarExcluirConta('cj_motoristas','${m.id}','${m.nome}')">🗑️ Excluir</button>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 function nivelPorCorridas(tc){
@@ -644,35 +673,50 @@ async function bloquearMotorista(id,bloquear){
 }
 
 // ── PASSAGEIROS ──
+let _todosPassageiros=[];
 async function carregarPassageiros(){
   const el=document.getElementById("lista-passageiros");
   el.innerHTML="<div class='vazio'>Carregando...</div>";
   try{
     const snap=await db.collection("cj_passageiros").orderBy("criadoEm","desc").get();
-    if(snap.empty){el.innerHTML="<div class='vazio'>Nenhum passageiro cadastrado</div>";return;}
-    el.innerHTML=snap.docs.map(d=>{
-      const p=d.data();
-      const idade=calcIdadePainel(p.dataNascimento);
-      return`<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--card2);border:2px solid var(--indigo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"👤"}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;">${p.nome||"Anônimo"}</div>
-            <div style="font-size:12px;color:var(--muted);">${p.fone||"Sem cadastro"} ${idade?"· "+idade+" anos":""}</div>
-            <div style="font-size:11px;color:var(--muted);">CPF: ${p.cpf||"não informado"}</div>
-          </div>
-          <div style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(79,70,229,0.12);color:var(--ciano);border:1px solid rgba(79,70,229,0.2);flex-shrink:0;">${p.tipo==="anonimo"?"Sem conta":"Cadastrado"}</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">${p.totalCorridas||0}</div><div style="font-size:10px;color:var(--muted);">Corridas</div></div>
-          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:var(--warn);">${p.avaliacao?"⭐ "+parseFloat(p.avaliacao).toFixed(1):"5.0"}</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
-          <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">${formatarDataSimples(p.criadoEm)}</div><div style="font-size:10px;color:var(--muted);">Cadastro</div></div>
-        </div>
-        ${p.tipo!=="anonimo"?`<button style="width:100%;padding:9px;border-radius:11px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--ciano);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="abrirResetSenha('cj_passageiros','${d.id}','${p.nome}')">🔑 Resetar senha</button>`:""}
-      </div>`;
-    }).join("");
+    _todosPassageiros=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderListaPassageiros(_todosPassageiros);
   }catch(e){el.innerHTML="<div class='vazio'>Erro ao carregar</div>";}
 }
+function filtrarListaPassageiros(){
+  const termo=(document.getElementById("busca-passageiros").value||"").toLowerCase().trim();
+  if(!termo){renderListaPassageiros(_todosPassageiros);return;}
+  const filtrados=_todosPassageiros.filter(p=>(p.nome||"").toLowerCase().includes(termo)||(p.fone||"").includes(termo));
+  renderListaPassageiros(filtrados);
+}
+function renderListaPassageiros(lista){
+  const el=document.getElementById("lista-passageiros");
+  if(lista.length===0){el.innerHTML="<div class='vazio'>Nenhum passageiro encontrado</div>";return;}
+  el.innerHTML=lista.map(p=>{
+    const idade=calcIdadePainel(p.dataNascimento);
+    return`<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--card2);border:2px solid var(--indigo);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${p.foto?`<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;"/>`:"👤"}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;">${p.nome||"Anônimo"}</div>
+          <div style="font-size:12px;color:var(--muted);">${p.fone||"Sem cadastro"} ${idade?"· "+idade+" anos":""}</div>
+          <div style="font-size:11px;color:var(--muted);">CPF: ${p.cpf||"não informado"}</div>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(79,70,229,0.12);color:var(--ciano);border:1px solid rgba(79,70,229,0.2);flex-shrink:0;">${p.tipo==="anonimo"?"Sem conta":"Cadastrado"}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">${p.totalCorridas||0}</div><div style="font-size:10px;color:var(--muted);">Corridas</div></div>
+        <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:var(--warn);">${p.avaliacao?"⭐ "+parseFloat(p.avaliacao).toFixed(1):"5.0"}</div><div style="font-size:10px;color:var(--muted);">Avaliação</div></div>
+        <div style="flex:1;background:var(--card2);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">${formatarDataSimples(p.criadoEm)}</div><div style="font-size:10px;color:var(--muted);">Cadastro</div></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        ${p.tipo!=="anonimo"?`<button style="flex:1;padding:9px;border-radius:11px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--ciano);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="abrirResetSenha('cj_passageiros','${p.id}','${p.nome}')">🔑 Senha</button>`:""}
+        <button style="flex:1;padding:9px;border-radius:11px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" onclick="confirmarExcluirConta('cj_passageiros','${p.id}','${p.nome}')">🗑️ Excluir</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
 function calcIdadePainel(dataNasc){
   if(!dataNasc)return null;
   const hoje=new Date(),nasc=new Date(dataNasc+"T00:00:00");
@@ -1061,5 +1105,148 @@ async function alterarPin(){
   }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
 }
 </script>
+<script>
+// ── EXCLUIR CONTA ──
+let excluirAlvo=null;
+function confirmarExcluirConta(colecao,id,nome){
+  excluirAlvo={colecao,id,nome};
+  if(!document.getElementById("modal-excluir"))criarModalExcluir();
+  document.getElementById("excluir-texto").textContent=`Tem certeza que deseja excluir a conta de ${nome}? Esta ação não pode ser desfeita.`;
+  document.getElementById("modal-excluir").classList.add("show");
+}
+function fecharExcluir(){document.getElementById("modal-excluir").classList.remove("show");excluirAlvo=null;}
+async function executarExclusao(){
+  if(!excluirAlvo)return;
+  mostrarLoading(true);
+  try{
+    await db.collection(excluirAlvo.colecao).doc(excluirAlvo.id).delete();
+    mostrarLoading(false);
+    fecharExcluir();
+    toast("Conta de "+excluirAlvo.nome+" excluída.");
+    if(excluirAlvo.colecao==="cj_motoristas")carregarMotoristas();
+    else carregarPassageiros();
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
+}
+function criarModalExcluir(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-excluir" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:24px;">
+    <div style="background:var(--card);border-radius:20px;border:1px solid rgba(239,68,68,0.3);padding:22px;width:100%;max-width:340px;">
+      <div style="font-size:32px;text-align:center;margin-bottom:10px;">⚠️</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin-bottom:8px;">Excluir conta</div>
+      <div id="excluir-texto" style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5;"></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="fecharExcluir()" style="flex:1;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;">Cancelar</button>
+        <button onclick="executarExclusao()" style="flex:1;padding:13px;border-radius:14px;background:#ef4444;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Excluir</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+
+// ── EDITAR CRÉDITO MANUALMENTE (definir valor exato) ──
+let editarCreditoAlvo=null;
+function abrirEditarCredito(colecao,id,nome,atual){
+  editarCreditoAlvo={colecao,id,nome};
+  if(!document.getElementById("modal-editar-credito"))criarModalEditarCredito();
+  document.getElementById("editar-credito-titulo").textContent="Editar saldo — "+nome;
+  document.getElementById("editar-credito-input").value=atual;
+  document.getElementById("modal-editar-credito").classList.add("show");
+}
+function fecharEditarCredito(){document.getElementById("modal-editar-credito").classList.remove("show");editarCreditoAlvo=null;}
+async function confirmarEditarCredito(){
+  const novoValor=parseFloat(document.getElementById("editar-credito-input").value);
+  if(isNaN(novoValor)||novoValor<0){toast("Digite um valor válido");return;}
+  if(!editarCreditoAlvo)return;
+  const teto=configs.tetoCredito||0;
+  let valorFinal=novoValor;
+  if(teto>0&&valorFinal>teto){toast("Valor maior que o teto (R$ "+teto+"). Ajustando para o teto.");valorFinal=teto;}
+  mostrarLoading(true);
+  try{
+    await db.collection(editarCreditoAlvo.colecao).doc(editarCreditoAlvo.id).update({creditos:valorFinal});
+    mostrarLoading(false);
+    fecharEditarCredito();
+    toast("Saldo definido: R$ "+valorFinal.toFixed(2).replace(".",","));
+    carregarMotoristas();
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
+}
+function criarModalEditarCredito(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-editar-credito" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+    <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:24px;padding-bottom:max(40px,calc(var(--sab)+24px));width:100%;animation:slideUp 0.3s ease;">
+      <div id="editar-credito-titulo" style="font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;">Editar saldo</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Defina o valor exato do saldo (substitui o atual)</div>
+      <input id="editar-credito-input" type="number" min="0" step="1" style="width:100%;padding:14px 16px;background:var(--card2);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:20px;font-family:inherit;outline:none;text-align:center;margin-bottom:16px;"/>
+      <div style="display:flex;gap:10px;">
+        <button onclick="fecharEditarCredito()" style="flex:1;padding:15px;border-radius:16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit;">Cancelar</button>
+        <button onclick="confirmarEditarCredito()" style="flex:2;padding:15px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">✓ Definir saldo</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+
+// ── RESOLVER ALERTA DE AVALIAÇÃO ──
+async function resolverAlertaAval(motoristaId){
+  mostrarLoading(true);
+  try{
+    await db.collection("cj_motoristas").doc(motoristaId).update({explicacaoAvaliacao:firebase.firestore.FieldValue.delete()});
+    mostrarLoading(false);
+    toast("Alerta marcado como resolvido.");
+    carregarMotoristas();
+    carregarAvaliacoes();
+  }catch(e){mostrarLoading(false);toast("Erro: "+e.message);}
+}
+</script>
+<script>
+// ── DETALHE DA CORRIDA ──
+function abrirDetalheCorrida(cEncoded){
+  const c=JSON.parse(decodeURIComponent(cEncoded));
+  if(!document.getElementById("modal-detalhe-corrida"))criarModalDetalheCorrida();
+  const statusMap={aguardando:"Aguardando motorista",aceita:"Aceita",a_caminho:"Motorista a caminho",motorista_chegou:"Motorista chegou",concluida:"Concluída",cancelada_cliente:"Cancelada pelo passageiro",cancelada_motorista:"Cancelada pelo motorista"};
+  const corpo=document.getElementById("detalhe-corrida-corpo");
+  corpo.innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:11px;">
+      <div style="background:var(--card2);border-radius:13px;padding:12px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">STATUS</div>
+        <div style="font-size:14px;font-weight:700;color:#fff;">${statusMap[c.status]||c.status}</div>
+      </div>
+      <div style="background:var(--card2);border-radius:13px;padding:12px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">ROTA</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:4px;">🟡 ${c.origem||"—"}</div>
+        <div style="font-size:13px;color:var(--text);">🔴 ${c.destino||"—"}</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;background:var(--card2);border-radius:13px;padding:12px;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">PASSAGEIRO</div><div style="font-size:13px;font-weight:700;color:#fff;">${c.clienteNome||"Anônimo"}</div><div style="font-size:11px;color:var(--muted);">${c.clienteFone||"—"}</div></div>
+        <div style="flex:1;background:var(--card2);border-radius:13px;padding:12px;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">MOTORISTA</div><div style="font-size:13px;font-weight:700;color:#fff;">${c.motorista?c.motorista.nome:"—"}</div><div style="font-size:11px;color:var(--muted);">${c.motorista?c.motorista.placa:"—"}</div></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;background:var(--card2);border-radius:13px;padding:12px;text-align:center;"><div style="font-size:18px;font-weight:900;color:var(--warn);">R$ ${parseFloat(c.valor||0).toFixed(2).replace(".",",")}</div><div style="font-size:10px;color:var(--muted);">Valor</div></div>
+        <div style="flex:1;background:var(--card2);border-radius:13px;padding:12px;text-align:center;"><div style="font-size:18px;font-weight:900;color:var(--ciano);">${c.distanciaKm||"—"} km</div><div style="font-size:10px;color:var(--muted);">Distância</div></div>
+        <div style="flex:1;background:var(--card2);border-radius:13px;padding:12px;text-align:center;"><div style="font-size:14px;font-weight:700;color:#fff;">${c.formaPgto||"—"}</div><div style="font-size:10px;color:var(--muted);">Pagamento</div></div>
+      </div>
+      ${c.obs?`<div style="background:rgba(139,92,246,0.06);border:1px dashed var(--border);border-radius:11px;padding:10px 12px;font-size:12px;color:var(--text);">📝 ${c.obs}</div>`:""}
+      ${c.avaliacaoPassageiro?`<div style="background:var(--card2);border-radius:13px;padding:12px;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">AVALIAÇÃO DO PASSAGEIRO</div><div style="font-size:13px;color:var(--text);">${"⭐".repeat(c.avaliacaoPassageiro)} ${c.comentarioPassageiro?"— "+c.comentarioPassageiro:""}</div></div>`:""}
+      ${c.avaliacaoMotorista?`<div style="background:var(--card2);border-radius:13px;padding:12px;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">AVALIAÇÃO DO MOTORISTA</div><div style="font-size:13px;color:var(--text);">${"⭐".repeat(c.avaliacaoMotorista)} ${c.comentarioMotorista?"— "+c.comentarioMotorista:""}</div></div>`:""}
+      <div style="font-size:11px;color:var(--muted);text-align:center;">${formatarData(c.criadoEm)}</div>
+    </div>`;
+  document.getElementById("modal-detalhe-corrida").classList.add("show");
+}
+function fecharDetalheCorrida(){document.getElementById("modal-detalhe-corrida").classList.remove("show");}
+function criarModalDetalheCorrida(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-detalhe-corrida" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+    <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:22px;padding-bottom:max(30px,calc(var(--sab)+22px));width:100%;max-height:82vh;overflow-y:auto;animation:slideUp 0.3s ease;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:17px;font-weight:800;color:#fff;">Detalhes da corrida</div>
+        <button onclick="fecharDetalheCorrida()" style="background:var(--card2);border:1px solid var(--border);color:var(--roxo-claro);width:32px;height:32px;border-radius:10px;font-size:15px;cursor:pointer;">✕</button>
+      </div>
+      <div id="detalhe-corrida-corpo"></div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+</script>
+
+
 </body>
 </html>
