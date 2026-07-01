@@ -78,13 +78,13 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .btn-menu-ham{background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:13px;color:var(--roxo-claro);font-size:21px;cursor:pointer;padding:9px 13px;flex-shrink:0;position:relative;z-index:1;}
 
 /* TABS */
-.tabs{display:flex;gap:8px;background:transparent;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:1;padding:2px 16px 12px;}
+.tabs{display:flex;gap:8px;background:var(--bg);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:5;padding:6px 16px 14px;isolation:isolate;}
 .tabs::-webkit-scrollbar{display:none;}
 .tab{flex-shrink:0;padding:9px 16px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border-radius:20px;transition:all 0.2s;}
 .tab.ativo{color:#fff;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border-color:var(--roxo-claro);box-shadow:0 4px 14px rgba(139,92,246,0.35);}
 
 /* CONTEÚDO DAS ABAS */
-.aba{display:none;padding:16px 20px 40px;flex-direction:column;gap:14px;position:relative;z-index:1;}
+.aba{display:none;padding:8px 20px 40px;flex-direction:column;gap:14px;position:relative;z-index:1;isolation:isolate;}
 .aba.ativa{display:flex;}
 
 /* CARDS RESUMO */
@@ -164,6 +164,9 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .raio-campo-label{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;}
 .raio-campo-input{padding:8px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;font-family:inherit;outline:none;width:100%;text-align:center;}
 .raio-campo-input:focus{border-color:var(--roxo);}
+.raio-stepper-btn{width:30px;height:30px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--roxo-claro);font-size:17px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.raio-stepper-btn:active{background:var(--roxo);color:#fff;}
+
 .btn-add-faixa{width:100%;padding:13px;border-radius:14px;background:rgba(139,92,246,0.1);border:1px dashed var(--roxo-claro);color:var(--roxo-claro);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-salvar-faixas{width:100%;padding:15px;border-radius:16px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;}
 
@@ -281,7 +284,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
     <div class="secao-label">Configuração de preços por raio</div>
     <div class="mapa-raio-wrap">
       <div class="mapa-raio-container">
-        <div class="mapa-raio-legenda" id="mapa-raio-legenda">Toque em uma faixa abaixo para editar o raio no mapa</div>
+        <div class="mapa-raio-legenda" id="mapa-raio-legenda">Ajuste o raio de cada faixa com os botões + e −. O mapa mostra o círculo em tempo real.</div>
         <div id="mapa-raios"></div>
       </div>
     </div>
@@ -398,7 +401,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 <div id="loading"><div class="loading-spinner"></div></div>
 
 <script>
-const LOGO_URL="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0877.png";
+const LOGO_URL="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Painel/refs/heads/main/IMG_0877.png";
 document.getElementById("logo-splash").src=LOGO_URL;
 document.getElementById("logo-login").src=LOGO_URL;
 document.getElementById("logo-header").src=LOGO_URL;
@@ -494,6 +497,8 @@ function abrirAba(id){
   document.querySelectorAll(".aba").forEach(a=>a.classList.remove("ativa"));
   document.querySelectorAll(".tabs .tab").forEach(t=>t.classList.remove("ativo"));
   document.getElementById("aba-"+id).classList.add("ativa");
+  const tela=document.getElementById("tela-painel");
+  if(tela)tela.scrollTop=0;
   const tabs=[...document.querySelectorAll(".tabs .tab")];
   const map={dashboard:0,corridas:1,motoristas:2,passageiros:3,precos:4,avaliacoes:5,receita:6,config:7};
   if(map[id]!==undefined&&tabs[map[id]])tabs[map[id]].classList.add("ativo");
@@ -897,22 +902,50 @@ function desenharCirculos(){
 function renderFaixasLista(){
   const el=document.getElementById("lista-faixas-preco");
   if(!el)return;
-  // Ordenar por "ate" crescente pra exibição lógica
   el.innerHTML=faixasPreco.map((f,i)=>{
     const cor=CORES_FAIXA[i%CORES_FAIXA.length];
     return`<div class="raio-faixa-item" onclick="ativarFaixaNoMapa(${i})" style="cursor:pointer;${faixaAtivaIdx===i?'border-color:'+cor+';':''}">
       <div class="raio-faixa-top">
         <div class="raio-faixa-cor" style="background:${cor};"></div>
-        <div class="raio-faixa-titulo">Até ${f.ate} km</div>
+        <div class="raio-faixa-titulo">Faixa ${i+1} — até ${f.ate} km</div>
         <button class="raio-faixa-remover" onclick="event.stopPropagation();removerFaixaPreco(${i})">✕</button>
       </div>
-      <div class="raio-faixa-campos">
-        <div class="raio-campo"><div class="raio-campo-label">Raio (km)</div><input class="raio-campo-input" type="number" value="${f.ate}" min="0.5" step="0.5" onclick="event.stopPropagation()" oninput="atualizarFaixaCampo(${i},'ate',this.value)"/></div>
-        <div class="raio-campo"><div class="raio-campo-label">Passageiro R$</div><input class="raio-campo-input" type="number" value="${f.precoPassageiro}" min="0" step="0.5" onclick="event.stopPropagation()" oninput="atualizarFaixaCampo(${i},'precoPassageiro',this.value)"/></div>
-        <div class="raio-campo"><div class="raio-campo-label">Motorista créd.</div><input class="raio-campo-input" type="number" value="${f.creditoMotorista}" min="0" step="1" onclick="event.stopPropagation()" oninput="atualizarFaixaCampo(${i},'creditoMotorista',this.value)"/></div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;">📍 RAIO (KM)</div>
+          <div style="display:flex;align-items:center;gap:6px;" onclick="event.stopPropagation()">
+            <button class="raio-stepper-btn" onclick="ajustarFaixa(${i},'ate',-1)">−</button>
+            <input class="raio-campo-input" style="width:56px;" type="number" value="${f.ate}" min="0.5" step="0.5" oninput="atualizarFaixaCampo(${i},'ate',this.value)"/>
+            <button class="raio-stepper-btn" onclick="ajustarFaixa(${i},'ate',1)">+</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;">💵 PASSAGEIRO PAGA (R$)</div>
+          <div style="display:flex;align-items:center;gap:6px;" onclick="event.stopPropagation()">
+            <button class="raio-stepper-btn" onclick="ajustarFaixa(${i},'precoPassageiro',-1)">−</button>
+            <input class="raio-campo-input" style="width:56px;" type="number" value="${f.precoPassageiro}" min="0" step="0.5" oninput="atualizarFaixaCampo(${i},'precoPassageiro',this.value)"/>
+            <button class="raio-stepper-btn" onclick="ajustarFaixa(${i},'precoPassageiro',1)">+</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;">🏍️ MOTORISTA GASTA (créditos)</div>
+          <div style="display:flex;align-items:center;gap:6px;" onclick="event.stopPropagation()">
+            <button class="raio-stepper-btn" onclick="ajustarFaixa(${i},'creditoMotorista',-1)">−</button>
+            <input class="raio-campo-input" style="width:56px;" type="number" value="${f.creditoMotorista}" min="0" step="1" oninput="atualizarFaixaCampo(${i},'creditoMotorista',this.value)"/>
+            <button class="raio-stepper-btn" onclick="ajustarFaixa(${i},'creditoMotorista',1)">+</button>
+          </div>
+        </div>
       </div>
     </div>`;
   }).join("");
+}
+function ajustarFaixa(idx,campo,delta){
+  const passo=campo==="ate"?0.5:(campo==="creditoMotorista"?1:0.5);
+  let v=(faixasPreco[idx][campo]||0)+(delta*passo);
+  if(v<0)v=0;
+  faixasPreco[idx][campo]=v;
+  renderFaixasLista();
+  if(campo==="ate")desenharCirculos();
 }
 
 function ativarFaixaNoMapa(idx){
