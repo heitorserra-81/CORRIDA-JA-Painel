@@ -78,7 +78,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 .btn-menu-ham{background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:13px;color:var(--roxo-claro);font-size:21px;cursor:pointer;padding:9px 13px;flex-shrink:0;position:relative;z-index:1;}
 
 /* TABS */
-.tabs{display:flex;gap:8px;background:var(--bg);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:5;padding:6px 16px 14px;isolation:isolate;touch-action:pan-x;}
+.tabs{display:flex;gap:8px;background:var(--bg);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50;padding:6px 16px 14px;isolation:isolate;touch-action:pan-x;}
 .tabs::-webkit-scrollbar{display:none;}
 .tab{flex-shrink:0;padding:9px 16px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border-radius:20px;transition:all 0.2s;}
 .tab.ativo{color:#fff;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border-color:var(--roxo-claro);box-shadow:0 4px 14px rgba(139,92,246,0.35);}
@@ -90,7 +90,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 /* CARDS RESUMO */
 .resumo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 .resumo-card{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:18px;padding:17px;position:relative;overflow:hidden;}
-.resumo-card::before{content:"";position:absolute;top:-40%;right:-30%;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.15),transparent 70%);}
+.resumo-card::before{content:"";position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.12),transparent 70%);transform:translate(30%,-30%);pointer-events:none;}
 .resumo-card-icon{font-size:26px;margin-bottom:9px;position:relative;}
 .resumo-card-val{font-size:27px;font-weight:900;color:#fff;margin-bottom:3px;position:relative;}
 .resumo-card-val.verde{color:var(--success);}
@@ -204,6 +204,40 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
 /* EFEITO 3D EM CARDS CLICÁVEIS */
 .card-clicavel{position:relative;transition:transform 0.15s ease,box-shadow 0.15s ease,filter 0.15s ease;}
 .card-clicavel.pressionando{transform:scale(0.97);filter:brightness(1.08);box-shadow:0 2px 20px rgba(139,92,246,0.5);}
+#pwa-banner{position:fixed;bottom:-100px;left:12px;right:12px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:13px;z-index:9500;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:bottom 0.4s ease;}
+#pwa-banner.show{bottom:16px;}
+.pwa-inner{display:flex;align-items:center;gap:11px;}
+.pwa-logo{width:42px;height:42px;border-radius:11px;overflow:hidden;flex-shrink:0;}
+.pwa-logo img{width:100%;height:100%;object-fit:cover;}
+.pwa-txt{flex:1;display:flex;flex-direction:column;}
+.pwa-txt strong{font-size:13px;color:#fff;}
+.pwa-txt span{font-size:11px;color:var(--muted);}
+.pwa-btns{display:flex;gap:7px;flex-shrink:0;}
+.btn-inst{padding:9px 14px;border-radius:11px;background:linear-gradient(135deg,var(--roxo-escuro),var(--roxo));border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-x{width:30px;height:30px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;}
+#ios-guide{position:fixed;bottom:-400px;left:12px;right:12px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;z-index:9500;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:bottom 0.4s ease;}
+#ios-guide.show{bottom:16px;}
+.ios-tit{font-size:15px;font-weight:800;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.ios-steps{display:flex;flex-direction:column;gap:11px;margin-bottom:14px;}
+.ios-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);}
+.ios-n{width:22px;height:22px;border-radius:50%;background:var(--roxo);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chip-ios{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:2px 7px;font-size:12px;}
+/* CARDS EXTRAS DASHBOARD (customizáveis) */
+#cards-extras-container{display:flex;flex-wrap:wrap;gap:10px;position:relative;}
+.card-widget{position:relative;background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:16px;padding:14px;box-sizing:border-box;cursor:pointer;}
+.card-widget.tam-1{width:100%;}
+.card-widget.tam-2{width:calc(50% - 5px);}
+.card-widget.tam-3{width:calc(33.333% - 7px);}
+.card-widget:not(.drag-ativo){transition:transform 0.25s cubic-bezier(.2,.9,.3,1.3),box-shadow 0.25s ease;}
+.card-widget.drag-ativo{position:fixed!important;z-index:9500;box-shadow:0 22px 46px rgba(139,92,246,0.4),0 12px 24px rgba(0,0,0,0.55)!important;filter:brightness(1.12);transform:scale(1.05) rotate(-1.2deg)!important;transition:box-shadow 0.2s ease,filter 0.2s ease!important;pointer-events:none;}
+.card-widget-placeholder{border-radius:16px;border:2px dashed var(--border);background:rgba(139,92,246,0.05);box-sizing:border-box;}
+.card-widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.card-widget-titulo{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget-icon{font-size:15px;flex-shrink:0;}
+.card-widget-val{font-size:20px;font-weight:900;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.card-widget.tam-3 .card-widget-val{font-size:15px;}
+.config-card-item-dash{display:flex;align-items:center;gap:11px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:11px 13px;}
 </style>
 </head>
 <body>
@@ -260,13 +294,15 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
   </div>
 
   <!-- DASHBOARD -->
-  <div class="aba ativa" id="aba-dashboard">
+  <div class="aba ativa" id="aba-dashboard"><div style="height:6px;flex-shrink:0;"></div>
     <div class="resumo-grid">
       <div class="resumo-card"><div class="resumo-card-icon">🚗</div><div class="resumo-card-val ciano" id="dash-corridas-hoje">0</div><div class="resumo-card-label">Corridas hoje</div></div>
       <div class="resumo-card"><div class="resumo-card-icon">💰</div><div class="resumo-card-val amarelo" id="dash-receita-hoje">R$ 0</div><div class="resumo-card-label">Créditos vendidos hoje</div></div>
       <div class="resumo-card"><div class="resumo-card-icon">🏍️</div><div class="resumo-card-val verde" id="dash-motoristas-online">0</div><div class="resumo-card-label">Motoristas online</div></div>
       <div class="resumo-card"><div class="resumo-card-icon">⏳</div><div class="resumo-card-val amarelo" id="dash-aguardando">0</div><div class="resumo-card-label">Aguardando</div></div>
     </div>
+    <div id="cards-extras-container"></div>
+
     <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="live-header">
         <div class="live-titulo">Corridas em tempo real</div>
@@ -277,7 +313,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
   </div>
 
   <!-- CORRIDAS -->
-  <div class="aba" id="aba-corridas">
+  <div class="aba" id="aba-corridas"><div style="height:6px;flex-shrink:0;"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="tab ativo" id="filtro-todas" onclick="filtrarCorridas('todas')" style="border-radius:20px;padding:7px 14px;font-size:12px;">Todas</button>
       <button class="tab" id="filtro-concluidas" onclick="filtrarCorridas('concluida')" style="border-radius:20px;padding:7px 14px;font-size:12px;">Concluídas</button>
@@ -287,19 +323,19 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
   </div>
 
   <!-- MOTORISTAS -->
-  <div class="aba" id="aba-motoristas">
+  <div class="aba" id="aba-motoristas"><div style="height:6px;flex-shrink:0;"></div>
     <input class="campo-input" id="busca-motoristas" type="text" placeholder="🔍 Buscar por nome ou WhatsApp..." oninput="filtrarListaMotoristas()" style="margin-bottom:2px;"/>
     <div id="lista-motoristas"><div class="vazio">Carregando...</div></div>
   </div>
 
   <!-- PASSAGEIROS -->
-  <div class="aba" id="aba-passageiros">
+  <div class="aba" id="aba-passageiros"><div style="height:6px;flex-shrink:0;"></div>
     <input class="campo-input" id="busca-passageiros" type="text" placeholder="🔍 Buscar por nome ou WhatsApp..." oninput="filtrarListaPassageiros()" style="margin-bottom:2px;"/>
     <div id="lista-passageiros"><div class="vazio">Carregando...</div></div>
   </div>
 
   <!-- PREÇOS (mapa de raios) -->
-  <div class="aba" id="aba-precos">
+  <div class="aba" id="aba-precos"><div style="height:6px;flex-shrink:0;"></div>
     <div class="secao-label">Configuração de preços por raio</div>
     <div class="mapa-raio-wrap">
       <div class="mapa-raio-container">
@@ -313,7 +349,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
   </div>
 
   <!-- AVALIAÇÕES -->
-  <div class="aba" id="aba-avaliacoes">
+  <div class="aba" id="aba-avaliacoes"><div style="height:6px;flex-shrink:0;"></div>
     <div class="secao-label">Alertas de avaliação baixa</div>
     <div id="lista-alertas-aval"><div class="vazio">Carregando...</div></div>
     <div class="secao-label" style="margin-top:10px;">Avaliações recentes</div>
@@ -321,7 +357,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
   </div>
 
   <!-- RECEITA -->
-  <div class="aba" id="aba-receita">
+  <div class="aba" id="aba-receita"><div style="height:6px;flex-shrink:0;"></div>
     <div class="config-secao" style="padding:18px;">
       <div style="text-align:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
         <div style="font-size:42px;font-weight:900;color:var(--warn);line-height:1;" id="rec-total">R$ 0,00</div>
@@ -342,7 +378,7 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
   </div>
 
   <!-- CONFIG -->
-  <div class="aba" id="aba-config">
+  <div class="aba" id="aba-config"><div style="height:6px;flex-shrink:0;"></div>
     <div class="config-secao">
       <div class="config-titulo">Créditos do motorista</div>
       <div class="config-item">
@@ -411,9 +447,27 @@ input,textarea{-webkit-user-select:text!important;user-select:text!important;}
     <div class="menu-item" onclick="fecharMenu();abrirAba('dashboard')">📊 Dashboard</div>
     <div class="menu-item" onclick="fecharMenu();abrirAba('precos')">🗺️ Preços por raio</div>
     <div class="menu-item" onclick="fecharMenu();abrirAba('avaliacoes')">⭐ Avaliações</div>
+    <div class="menu-item" onclick="fecharMenu();abrirConfigCardsDash()">🧩 Personalizar Dashboard</div>
     <div class="menu-sep"></div>
     <div class="menu-item" style="color:#ef4444;" onclick="sair()">🚪 Sair do painel</div>
   </div>
+</div>
+
+<div id="pwa-banner">
+  <div class="pwa-inner">
+    <div class="pwa-logo"><img id="pwa-logo-img" src="" alt=""/></div>
+    <div class="pwa-txt"><strong>Instalar Painel Admin</strong><span>Adicione à tela inicial</span></div>
+    <div class="pwa-btns"><button class="btn-inst" id="btn-inst">Instalar</button><button class="btn-x" onclick="fecharPWA()">✕</button></div>
+  </div>
+</div>
+<div id="ios-guide">
+  <div class="ios-tit">📲 Instalar no iPhone <button class="btn-x" onclick="fecharPWA()">✕</button></div>
+  <div class="ios-steps">
+    <div class="ios-step"><div class="ios-n">1</div><span>Toque em <span class="chip-ios">⬆ Compartilhar</span> na barra do Safari</span></div>
+    <div class="ios-step"><div class="ios-n">2</div><span>Role e toque em <em>"Adicionar à Tela de Início"</em></span></div>
+    <div class="ios-step"><div class="ios-n">3</div><span>Toque em <em>"Adicionar"</em> para confirmar</span></div>
+  </div>
+  <button onclick="fecharPWA()" style="width:100%;padding:10px;border-radius:16px;background:rgba(255,255,255,0.05);border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Entendi</button>
 </div>
 
 <div id="toast"></div>
@@ -489,6 +543,7 @@ function entrarPainel(){
   carregarConfigs();
   carregarPerfilAdmin();
   abrirAba("dashboard");
+  setTimeout(()=>pedirNotifAdmin(),1500);
 }
 function sair(){
   sessionStorage.removeItem("cj_admin_logado");
@@ -524,7 +579,7 @@ function abrirAba(id){
   if(map[id]!==undefined&&tabs[map[id]])tabs[map[id]].classList.add("ativo");
 
   switch(id){
-    case"dashboard":carregarDashboard();iniciarLive();break;
+    case"dashboard":carregarDashboard();iniciarLive();renderCardsExtrasDash();break;
     case"corridas":carregarCorridas("todas");break;
     case"motoristas":carregarMotoristas();break;
     case"passageiros":carregarPassageiros();break;
@@ -1564,6 +1619,259 @@ document.addEventListener("click",e=>{
   if(card&&!e.target.closest("button"))somClique();
 });
 </script>
+<script>
+// ── PWA (instalação + notificação) ──
+(function(){
+  const logoUrl="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Painel/refs/heads/main/IMG_0877.png";
+  const pwaImg=document.getElementById("pwa-logo-img");
+  if(pwaImg)pwaImg.src=logoUrl;
+  if(document.getElementById("apple-icon"))document.getElementById("apple-icon").href=logoUrl;
+  const m={name:"Corrida Já Painel Admin",short_name:"CJ Admin",start_url:"./",display:"standalone",background_color:"#0a0a1a",theme_color:"#1e1b4b",lang:"pt-BR",icons:[{src:logoUrl,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+  document.getElementById("manifest-link").href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));
+  // Service Worker desabilitado (evita ficar preso em cache de versões antigas durante desenvolvimento ativo)
+  if("serviceWorker"in navigator){
+    navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister())).catch(()=>{});
+    if(window.caches)caches.keys().then(names=>names.forEach(n=>caches.delete(n))).catch(()=>{});
+  }
+  const dismissed=localStorage.getItem("cj_admin_pwa_ok");
+  const standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+  let dp=null;
+  window.addEventListener("beforeinstallprompt",e=>{
+    e.preventDefault();dp=e;
+    if(!standalone&&!dismissed)setTimeout(()=>{
+      const b=document.getElementById("pwa-banner");
+      if(b){b.classList.add("show");setTimeout(()=>b.classList.remove("show"),6000);}
+    },2500);
+  });
+  const btnInst=document.getElementById("btn-inst");
+  if(btnInst)btnInst.addEventListener("click",async()=>{
+    if(!dp)return;
+    dp.prompt();
+    const{outcome}=await dp.userChoice;
+    dp=null;fecharPWA();
+    if(outcome==="accepted")localStorage.setItem("cj_admin_pwa_ok","1");
+  });
+  if(isIOS&&!standalone&&!dismissed)setTimeout(()=>{
+    const g=document.getElementById("ios-guide");
+    if(g){g.classList.add("show");setTimeout(()=>g.classList.remove("show"),9000);}
+  },2500);
+})();
+function fecharPWA(){
+  const b=document.getElementById("pwa-banner"),g=document.getElementById("ios-guide");
+  if(b)b.classList.remove("show");
+  if(g)g.classList.remove("show");
+  localStorage.setItem("cj_admin_pwa_ok","1");
+}
+
+// ── NOTIFICAÇÕES (novo pedido / avaliação baixa) ──
+async function pedirNotifAdmin(){try{if("Notification"in window)await Notification.requestPermission();}catch(e){}}
+function notifAdmin(t,b){
+  if(typeof Notification!=="undefined"&&Notification.permission==="granted"){
+    try{new Notification(t,{body:b,tag:"cj-admin",vibrate:[200,100,200]});}catch(e){}
+  }
+}
+// Pede permissão assim que entra no painel
+document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>{if(sessionStorage.getItem("cj_admin_logado")==="1")pedirNotifAdmin();},3000);});
+</script>
+<script>
+// ── CARDS EXTRAS CUSTOMIZÁVEIS DO DASHBOARD ──
+const CARDS_DASH_DISPONIVEIS=[
+  {id:"total_motoristas",nome:"Total de motoristas",desc:"Motoristas cadastrados",icon:"🏍️"},
+  {id:"total_passageiros",nome:"Total de passageiros",desc:"Passageiros cadastrados",icon:"👤"},
+  {id:"corridas_semana",nome:"Corridas da semana",desc:"Total concluído nos últimos 7 dias",icon:"📅"},
+  {id:"receita_semana",nome:"Créditos vendidos na semana",desc:"Total vendido aos motoristas",icon:"💵"},
+  {id:"aval_media",nome:"Avaliação média geral",desc:"Nota média de todas as corridas",icon:"⭐"},
+  {id:"motoristas_bloqueados",nome:"Motoristas bloqueados",desc:"Contas suspensas",icon:"🚫"},
+  {id:"alertas_pendentes",nome:"Alertas de avaliação",desc:"Explicações aguardando revisão",icon:"⚠️"},
+];
+
+function getConfigCardsDash(){
+  try{
+    const s=localStorage.getItem("cj_admin_cards");
+    if(s)return JSON.parse(s);
+  }catch(e){}
+  const def=CARDS_DASH_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:false,tam:1,ordem:i}));
+  localStorage.setItem("cj_admin_cards",JSON.stringify(def));
+  return def;
+}
+function saveConfigCardsDash(cards){localStorage.setItem("cj_admin_cards",JSON.stringify(cards));}
+
+async function renderCardsExtrasDash(){
+  const cont=document.getElementById("cards-extras-container");
+  if(!cont)return;
+  const cards=getConfigCardsDash().filter(c=>c.ativo).sort((a,b)=>a.ordem-b.ordem);
+  if(cards.length===0){cont.innerHTML="";return;}
+  const dados=await calcularDadosCardsDash();
+  cont.innerHTML=cards.map((c,i)=>{
+    const info=CARDS_DASH_DISPONIVEIS.find(x=>x.id===c.id);
+    if(!info)return"";
+    const d=dados[c.id]||{val:"--",sub:""};
+    return`<div class="card-widget card-clicavel tam-${c.tam||1}" data-idx="${i}" data-id="${c.id}" ontouchstart="iniciaDragCardDash(event,${i})" ontouchmove="moveDragCardDash(event)" ontouchend="fimDragCardDash(event)">
+      <div class="card-widget-header"><div class="card-widget-titulo">${info.nome}</div><div class="card-widget-icon">${info.icon}</div></div>
+      <div class="card-widget-val">${d.val}</div>
+      <div class="card-widget-sub">${d.sub}</div>
+    </div>`;
+  }).join("");
+}
+
+async function calcularDadosCardsDash(){
+  const dados={};
+  try{
+    const snapM=await db.collection("cj_motoristas").get();
+    dados.total_motoristas={val:snapM.size,sub:"cadastrados"};
+    dados.motoristas_bloqueados={val:snapM.docs.filter(d=>d.data().bloqueado).length,sub:"contas suspensas"};
+    dados.alertas_pendentes={val:snapM.docs.filter(d=>d.data().explicacaoAvaliacao).length,sub:"aguardando revisão"};
+
+    const snapP=await db.collection("cj_passageiros").get();
+    dados.total_passageiros={val:snapP.size,sub:"cadastrados"};
+
+    const snapC=await db.collection("cj_corridas").where("status","==","concluida").get();
+    const semana=new Date();semana.setDate(semana.getDate()-7);
+    let cSemana=0,totalAval=0,numAval=0;
+    snapC.docs.forEach(d=>{
+      const c=d.data();
+      const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+      if(dt>=semana)cSemana++;
+      if(c.avaliacaoPassageiro){totalAval+=c.avaliacaoPassageiro;numAval++;}
+    });
+    dados.corridas_semana={val:cSemana,sub:"últimos 7 dias"};
+    dados.aval_media={val:numAval>0?(totalAval/numAval).toFixed(1)+" ⭐":"—",sub:"média geral"};
+
+    let receitaSemana=0;
+    try{
+      const snapT=await db.collection("cj_transacoes_creditos").get();
+      snapT.docs.forEach(d=>{
+        const t=d.data();
+        const dt=t.data&&t.data.toDate?t.data.toDate():(t.data?new Date(t.data):new Date(0));
+        if(dt>=semana)receitaSemana+=(t.valor||0);
+      });
+    }catch(e){}
+    dados.receita_semana={val:"R$ "+receitaSemana.toFixed(2).replace(".",","),sub:"esta semana"};
+  }catch(e){}
+  return dados;
+}
+
+// ── DRAG (segue o dedo, mesmo padrão robusto do motorista) ──
+let _cdDragTO=null,_cdDragging=false,_cdDragIdx=null,_cdDragEl=null,_cdDragMoved=false;
+let _cdDragStartX=0,_cdDragStartY=0,_cdOffsetX=0,_cdOffsetY=0,_cdPlaceholder=null;
+
+function iniciaDragCardDash(e,idx){
+  const t=e.touches?e.touches[0]:e;
+  _cdDragStartX=t.clientX;_cdDragStartY=t.clientY;_cdDragMoved=false;
+  clearTimeout(_cdDragTO);
+  _cdDragTO=setTimeout(()=>{
+    if(_cdDragMoved)return;
+    _cdDragging=true;_cdDragIdx=idx;
+    _cdDragEl=document.querySelector(`#cards-extras-container .card-widget[data-idx="${idx}"]`);
+    if(!_cdDragEl)return;
+    const r=_cdDragEl.getBoundingClientRect();
+    _cdOffsetX=t.clientX-r.left;_cdOffsetY=t.clientY-r.top;
+    _cdPlaceholder=document.createElement("div");
+    _cdPlaceholder.className="card-widget-placeholder "+_cdDragEl.className.replace("card-widget","").replace("card-clicavel","").trim();
+    _cdPlaceholder.style.width=r.width+"px";
+    _cdPlaceholder.style.height=r.height+"px";
+    _cdDragEl.parentNode.insertBefore(_cdPlaceholder,_cdDragEl);
+    _cdDragEl.style.width=r.width+"px";_cdDragEl.style.height=r.height+"px";
+    _cdDragEl.style.left=r.left+"px";_cdDragEl.style.top=r.top+"px";
+    _cdDragEl.classList.add("drag-ativo");
+    if(navigator.vibrate)navigator.vibrate([50,20,50]);
+  },500);
+}
+function moveDragCardDash(e){
+  const t=e.touches?e.touches[0]:e;
+  if(!_cdDragging){
+    const dx=Math.abs(t.clientX-_cdDragStartX),dy=Math.abs(t.clientY-_cdDragStartY);
+    if(dx>10||dy>10){_cdDragMoved=true;clearTimeout(_cdDragTO);}
+    return;
+  }
+  e.preventDefault();
+  if(!_cdDragEl)return;
+  _cdDragEl.style.left=(t.clientX-_cdOffsetX)+"px";
+  _cdDragEl.style.top=(t.clientY-_cdOffsetY)+"px";
+  const cont=document.getElementById("cards-extras-container");
+  const items=[...cont.querySelectorAll(".card-widget:not(.drag-ativo)")];
+  for(const item of items){
+    const r=item.getBoundingClientRect();
+    if(t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom){
+      const rectPh=_cdPlaceholder.getBoundingClientRect();
+      const goingDown=r.top>rectPh.top||(r.top===rectPh.top&&r.left>rectPh.left);
+      if(goingDown)item.after(_cdPlaceholder);else item.before(_cdPlaceholder);
+      break;
+    }
+  }
+}
+function fimDragCardDash(e){
+  clearTimeout(_cdDragTO);
+  if(_cdDragging&&_cdDragEl&&_cdPlaceholder){
+    _cdDragging=false;
+    _cdPlaceholder.replaceWith(_cdDragEl);
+    _cdDragEl.classList.remove("drag-ativo");
+    _cdDragEl.style.position="";_cdDragEl.style.left="";_cdDragEl.style.top="";_cdDragEl.style.width="";_cdDragEl.style.height="";
+    const cont=document.getElementById("cards-extras-container");
+    const novaOrdemIds=[...cont.querySelectorAll(".card-widget")].map(el=>el.dataset.id);
+    const todos=getConfigCardsDash();
+    novaOrdemIds.forEach((id,i)=>{const c=todos.find(x=>x.id===id);if(c)c.ordem=i;});
+    saveConfigCardsDash(todos);
+    if(navigator.vibrate)navigator.vibrate(15);
+    renderCardsExtrasDash();
+  }
+  _cdDragEl=null;_cdPlaceholder=null;_cdDragMoved=false;
+}
+
+// ── MODAL DE CONFIGURAÇÃO DOS CARDS ──
+function abrirConfigCardsDash(){
+  if(!document.getElementById("modal-config-cards"))criarModalConfigCards();
+  renderConfigCardsDashLista();
+  document.getElementById("modal-config-cards").classList.add("show");
+}
+function fecharConfigCardsDash(){
+  document.getElementById("modal-config-cards").classList.remove("show");
+  renderCardsExtrasDash();
+}
+function renderConfigCardsDashLista(){
+  const el=document.getElementById("lista-config-cards-dash");
+  if(!el)return;
+  const cards=getConfigCardsDash();
+  el.innerHTML=CARDS_DASH_DISPONIVEIS.map(info=>{
+    const c=cards.find(x=>x.id===info.id)||{ativo:false,tam:1};
+    return`<div class="config-card-item-dash">
+      <div style="font-size:20px;width:28px;text-align:center;flex-shrink:0;">${info.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#fff;">${info.nome}</div>
+        <div style="font-size:11px;color:var(--muted);">${info.desc}</div>
+      </div>
+      <div class="config-toggle ${c.ativo?"on":""}" onclick="toggleCardDash('${info.id}')"></div>
+    </div>`;
+  }).join("");
+}
+function toggleCardDash(id){
+  const cards=getConfigCardsDash();
+  const c=cards.find(x=>x.id===id);
+  if(c){
+    c.ativo=!c.ativo;
+    if(c.ativo&&(c.ordem===undefined))c.ordem=Math.max(0,...cards.map(x=>x.ordem||0))+1;
+    saveConfigCardsDash(cards);
+    renderConfigCardsDashLista();
+  }
+}
+function criarModalConfigCards(){
+  const div=document.createElement("div");
+  div.innerHTML=`<div id="modal-config-cards" class="modal-din" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+    <div style="background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:22px;padding-bottom:max(30px,calc(var(--sab)+22px));width:100%;max-height:80vh;overflow-y:auto;animation:slideUp 0.3s ease;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:17px;font-weight:800;color:#fff;">🧩 Personalizar Dashboard</div>
+        <button onclick="fecharConfigCardsDash()" style="background:var(--card2);border:1px solid var(--border);color:var(--roxo-claro);width:32px;height:32px;border-radius:10px;font-size:15px;cursor:pointer;">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Ative os cards extras que quiser ver no Dashboard. Depois é só segurar e arrastar para reordenar.</div>
+      <div id="lista-config-cards-dash" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+</script>
+
+
 
 
 
