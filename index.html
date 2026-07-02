@@ -1896,41 +1896,48 @@ function criarModalLive(){
 </script>
 <script>
 // ── PERFIS PRONTOS DE PREÇO (calibrados: começa barato, motorista gasta no máx. 3 créditos) ──
+// Faixas recalibradas cobrindo até 50km (Holambra -> Campinas ~35km, Mogi Guaçu ~40km,
+// com margem para desvios de rota e ida/volta). Motorista nunca gasta mais de 3 créditos.
 const PERFIS_PRECO={
   inicial:[
     {ate:2,precoPassageiro:6,creditoMotorista:1},
     {ate:5,precoPassageiro:9,creditoMotorista:1},
     {ate:10,precoPassageiro:14,creditoMotorista:2},
-    {ate:20,precoPassageiro:20,creditoMotorista:2},
-    {ate:35,precoPassageiro:28,creditoMotorista:3},
+    {ate:20,precoPassageiro:22,creditoMotorista:2},
+    {ate:35,precoPassageiro:32,creditoMotorista:3},
+    {ate:50,precoPassageiro:42,creditoMotorista:3},
   ],
   baixo:[
     {ate:2,precoPassageiro:7,creditoMotorista:1},
     {ate:5,precoPassageiro:10,creditoMotorista:1},
     {ate:10,precoPassageiro:16,creditoMotorista:2},
-    {ate:20,precoPassageiro:22,creditoMotorista:2},
-    {ate:35,precoPassageiro:30,creditoMotorista:3},
+    {ate:20,precoPassageiro:25,creditoMotorista:2},
+    {ate:35,precoPassageiro:36,creditoMotorista:3},
+    {ate:50,precoPassageiro:47,creditoMotorista:3},
   ],
   medio:[
     {ate:2,precoPassageiro:8,creditoMotorista:1},
     {ate:5,precoPassageiro:12,creditoMotorista:2},
     {ate:10,precoPassageiro:18,creditoMotorista:2},
-    {ate:20,precoPassageiro:25,creditoMotorista:3},
-    {ate:35,precoPassageiro:35,creditoMotorista:3},
+    {ate:20,precoPassageiro:28,creditoMotorista:3},
+    {ate:35,precoPassageiro:40,creditoMotorista:3},
+    {ate:50,precoPassageiro:52,creditoMotorista:3},
   ],
   altomedio:[
     {ate:2,precoPassageiro:9,creditoMotorista:2},
     {ate:5,precoPassageiro:14,creditoMotorista:2},
     {ate:10,precoPassageiro:21,creditoMotorista:3},
-    {ate:20,precoPassageiro:29,creditoMotorista:3},
-    {ate:35,precoPassageiro:40,creditoMotorista:3},
+    {ate:20,precoPassageiro:32,creditoMotorista:3},
+    {ate:35,precoPassageiro:46,creditoMotorista:3},
+    {ate:50,precoPassageiro:60,creditoMotorista:3},
   ],
   alto:[
     {ate:2,precoPassageiro:10,creditoMotorista:2},
     {ate:5,precoPassageiro:16,creditoMotorista:2},
     {ate:10,precoPassageiro:24,creditoMotorista:3},
-    {ate:20,precoPassageiro:33,creditoMotorista:3},
-    {ate:35,precoPassageiro:45,creditoMotorista:3},
+    {ate:20,precoPassageiro:36,creditoMotorista:3},
+    {ate:35,precoPassageiro:52,creditoMotorista:3},
+    {ate:50,precoPassageiro:68,creditoMotorista:3},
   ],
 };
 function aplicarPerfilPreco(nome){
